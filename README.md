@@ -1,5 +1,7 @@
 # RAISE-ICT Benchmark Public Bundle
 
+[![DOI](https://zenodo.org/badge/1265786399.svg)](https://zenodo.org/badge/latestdoi/1265786399)
+
 RAISE-ICT is a Python benchmark harness for intrusion-detection system (IDS) evaluation. An IDS is a model or rule system that flags malicious network activity. The main RAISE-ICT output is an auditable result-row contract: each reported score is tied to a CSV row plus machine-readable evidence for dataset source, split provenance, preprocessing state, model identity, threat setting, hardware profile, and audit status.
 
 ## What this bundle provides

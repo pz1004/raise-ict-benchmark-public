@@ -5,9 +5,15 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
-from raise_ict.attacks import ConstrainedAttackConfig, generate_constrained_perturbations, validity_rate
+from raise_ict.attacks import (
+    ConstrainedAttackConfig,
+    evaluate_validity,
+    generate_constrained_perturbations,
+    validity_rate,
+)
 from raise_ict.datasets import SyntheticDatasetSpec, load_synthetic_frame
 from raise_ict.models import build_model
 from raise_ict.preprocessing import FlowPreprocessor
@@ -57,6 +63,20 @@ def test_constrained_attack_preserves_nonnegative_features() -> None:
     assert validity_rate(attacked, cfg) == 1.0
 
 
+def test_validity_report_detects_immutable_feature_changes() -> None:
+    clean = pd.DataFrame({"mutable": [1.0, 2.0], "locked": [10.0, 20.0]})
+    attacked = clean.copy()
+    attacked.loc[0, "locked"] = 999.0
+    cfg = ConstrainedAttackConfig(epsilon=0.0, mutable_features=["mutable"])
+
+    report = evaluate_validity(clean, attacked, cfg)
+
+    assert report.valid_mask.tolist() == [False, True]
+    assert report.valid_count == 1
+    assert report.invalid_count == 1
+    assert report.immutable_pass_rate == 0.5
+
+
 def test_included_core4_evidence_passes_strict_audit_with_anonymous_claim_fixture(tmp_path: Path) -> None:
     manuscript = tmp_path / "anonymous_manuscript.tex"
     bibliography = tmp_path / "anonymous_references.bib"
@@ -89,6 +109,30 @@ def test_included_core4_evidence_passes_strict_audit_with_anonymous_claim_fixtur
 
     assert report["complete"] is True
     assert report["summary"]["incomplete"] == 0
+
+
+def test_dataset_download_requires_explicit_third_party_mirror_opt_in(tmp_path: Path) -> None:
+    manifest = tmp_path / "download_manifest.json"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/download_datasets.py",
+            "--datasets",
+            "UNSW-NB15",
+            "--manifest",
+            str(manifest),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    assert "official-source-first" in result.stderr
+    assert "--allow-third-party-mirrors" in result.stderr
+    assert "https://research.unsw.edu.au/projects/unsw-nb15-dataset" in result.stderr
+    assert not manifest.exists()
 
 
 def test_tier_e_core4_dry_run_uses_anonymous_public_paths() -> None:

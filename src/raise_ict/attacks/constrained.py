@@ -57,23 +57,22 @@ def generate_constrained_perturbations(
     """Perturb mutable numeric features and keep nonnegative features valid."""
     rng = np.random.default_rng(config.seed)
     attacked = features.copy()
-    mutable = [col for col in config.mutable_features if col in attacked.columns]
-    if not mutable:
-        mutable = attacked.select_dtypes(include=[np.number]).columns.tolist()
+    mutable = _mutable_columns(attacked, config.mutable_features)
 
-    target_index = attacked.index if labels is None else labels[labels.astype(int) == 1].index
+    target_index = _target_index(attacked, labels)
     if len(target_index) == 0:
         return attacked
 
     base_values = attacked.loc[target_index, mutable].to_numpy()
+    scale = _scale_array(mutable, scales or {})
     if config.strategy == "score_search" and score_fn is not None and config.n_candidates > 1:
         best_frame = attacked.copy()
         best_scores = np.full(len(target_index), -np.inf, dtype=float)
         for _ in range(config.n_candidates):
             candidate = attacked.copy()
-            noise = _scaled_uniform_noise(rng, config, mutable, len(target_index), scales or {})
+            noise = _scaled_uniform_noise(rng, config, mutable, len(target_index), scale)
             candidate.loc[target_index, mutable] = base_values + noise
-            _project_budget_inplace(features, candidate, mutable, target_index, config, scales or {})
+            _project_budget_inplace(features, candidate, mutable, target_index, config, scale)
             _project_feature_bounds_inplace(candidate, lower_bounds, upper_bounds, mutable)
             _project_nonnegative_inplace(candidate, config, lower_bounds)
             scores = np.asarray(score_fn(candidate.loc[target_index]), dtype=float)
@@ -84,10 +83,10 @@ def generate_constrained_perturbations(
                 best_scores[improve] = scores[improve]
         attacked = best_frame
     else:
-        noise = _scaled_uniform_noise(rng, config, mutable, len(target_index), scales or {})
+        noise = _scaled_uniform_noise(rng, config, mutable, len(target_index), scale)
         attacked.loc[target_index, mutable] = base_values + noise
 
-    _project_budget_inplace(features, attacked, mutable, target_index, config, scales or {})
+    _project_budget_inplace(features, attacked, mutable, target_index, config, scale)
     _project_feature_bounds_inplace(attacked, lower_bounds, upper_bounds, mutable)
     _project_nonnegative_inplace(attacked, config, lower_bounds)
     return attacked
@@ -104,9 +103,7 @@ def evaluate_constrained_perturbations(
     relationship_check: Callable[[pd.DataFrame], np.ndarray] | None = None,
 ) -> AttackEvaluation:
     """Generate perturbations and return the full manuscript validity report."""
-    mutable = [col for col in config.mutable_features if col in features.columns]
-    if not mutable:
-        mutable = features.select_dtypes(include=[np.number]).columns.tolist()
+    mutable = _mutable_columns(features, config.mutable_features)
     x_adv = generate_constrained_perturbations(
         features,
         config,
@@ -142,11 +139,9 @@ def evaluate_validity(
     relationship_check: Callable[[pd.DataFrame], np.ndarray] | None = None,
 ) -> AttackValidityReport:
     """Evaluate budget, bounds, immutable-field, and relation validity masks."""
-    mutable = mutable_features or [col for col in config.mutable_features if col in clean.columns]
-    if not mutable:
-        mutable = clean.select_dtypes(include=[np.number]).columns.tolist()
-    target_index = clean.index if labels is None else labels[labels.astype(int) == 1].index
-    budget_mask = _budget_mask(clean, attacked, mutable, target_index, config, scales or {})
+    mutable = mutable_features or _mutable_columns(clean, config.mutable_features)
+    target_index = _target_index(clean, labels)
+    budget_mask = _budget_mask(clean, attacked, mutable, target_index, config, _scale_array(mutable, scales or {}))
     bounds_mask = _bounds_mask(attacked, config, lower_bounds or {}, upper_bounds or {})
     immutable_mask = _immutable_mask(clean, attacked, mutable)
     relation_mask = _relation_mask(attacked, relationship_check)
@@ -163,6 +158,26 @@ def evaluate_validity(
         relation_pass_rate=float(relation_mask.mean()) if len(relation_mask) else 1.0,
         validity_rate=float(valid_mask.mean()) if len(valid_mask) else 1.0,
     )
+
+
+def _mutable_columns(features: pd.DataFrame, requested: list[str]) -> list[str]:
+    """Return requested mutable columns or all numeric columns when none match."""
+    mutable = [col for col in requested if col in features.columns]
+    if mutable:
+        return mutable
+    return features.select_dtypes(include=[np.number]).columns.tolist()
+
+
+def _target_index(features: pd.DataFrame, labels: pd.Series | None) -> pd.Index:
+    """Return the rows eligible for perturbation under the existing label rule."""
+    if labels is None:
+        return features.index
+    return labels[labels.astype(int) == 1].index
+
+
+def _scale_array(mutable: list[str], scales: Mapping[str, float]) -> np.ndarray:
+    """Return feature scales in mutable-column order."""
+    return np.asarray([float(scales.get(col, 1.0) or 1.0) for col in mutable], dtype=float)
 
 
 def _project_nonnegative_inplace(
@@ -198,9 +213,8 @@ def _scaled_uniform_noise(
     config: ConstrainedAttackConfig,
     mutable: list[str],
     row_count: int,
-    scales: Mapping[str, float],
+    scale: np.ndarray,
 ) -> np.ndarray:
-    scale = np.asarray([float(scales.get(col, 1.0) or 1.0) for col in mutable], dtype=float)
     normalized = rng.uniform(-config.epsilon, config.epsilon, size=(row_count, len(mutable)))
     return normalized * scale
 
@@ -211,11 +225,10 @@ def _project_budget_inplace(
     mutable: list[str],
     target_index: pd.Index,
     config: ConstrainedAttackConfig,
-    scales: Mapping[str, float],
+    scale: np.ndarray,
 ) -> None:
     if not mutable or len(target_index) == 0 or config.epsilon <= 0.0:
         return
-    scale = np.asarray([float(scales.get(col, 1.0) or 1.0) for col in mutable], dtype=float)
     delta = attacked.loc[target_index, mutable].to_numpy(dtype=float) - clean.loc[target_index, mutable].to_numpy(dtype=float)
     normalized = delta / scale
     if config.budget_norm in {"inf", "linf", "l_inf"}:
@@ -247,13 +260,12 @@ def _budget_mask(
     mutable: list[str],
     target_index: pd.Index,
     config: ConstrainedAttackConfig,
-    scales: Mapping[str, float],
+    scale: np.ndarray,
 ) -> np.ndarray:
     passed = pd.Series(True, index=clean.index)
     if not mutable or len(target_index) == 0 or config.epsilon <= 0.0:
         return passed.to_numpy(dtype=bool)
     delta = attacked.loc[target_index, mutable] - clean.loc[target_index, mutable]
-    scale = np.asarray([float(scales.get(col, 1.0) or 1.0) for col in mutable], dtype=float)
     scaled = delta.to_numpy(dtype=float) / scale
     if config.budget_norm in {"inf", "linf", "l_inf"}:
         norm = np.max(np.abs(scaled), axis=1)
@@ -292,7 +304,8 @@ def _bounds_mask(
 
 
 def _immutable_mask(clean: pd.DataFrame, attacked: pd.DataFrame, mutable: list[str]) -> np.ndarray:
-    immutable = [col for col in clean.columns if col not in set(mutable) and col in attacked.columns]
+    mutable_set = set(mutable)
+    immutable = [col for col in clean.columns if col not in mutable_set and col in attacked.columns]
     passed = np.ones(len(clean), dtype=bool)
     for col in immutable:
         if pd.api.types.is_numeric_dtype(clean[col]):

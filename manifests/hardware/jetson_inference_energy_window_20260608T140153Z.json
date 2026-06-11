@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "dataset": "CSE-CIC-IDS2018",
+  "split_id": "cse_cic_ids2018_friday_holdout_sample",
+  "seed": 0,
+  "model_id": "extra_trees",
+  "flows_per_iteration": 5000,
+  "warmup_iterations": 3,
+  "measured_iterations": 585228,
+  "measured_flows": 2926140000,
+  "measurement_duration_s": 32400.000162960998,
+  "throughput_fps": 90312.96250871943,
+  "recommended_hardware_fields": {
+    "measurement_window": "inference-only predict loop: CSE-CIC-IDS2018/extra_trees/seed0, 585228 iterations after 3 warmups",
+    "measurement_duration_s": 32400.000162960998,
+    "measured_flows": 2926140000,
+    "measurement_mode": "measured_onboard_sensor",
+    "energy_source": "jetson_ina3221_vdd_in",
+    "average_power_w": 7.121530712034457
+  },
+  "onboard_power": {
+    "measurement_mode": "measured_onboard_sensor",
+    "energy_source": "jetson_ina3221_vdd_in",
+    "rail": "VDD_IN",
+    "sample_count": 32327,
+    "average_power_w": 7.121530712034457,
+    "min_power_w": 4.747776,
+    "max_power_w": 9.990208,
+    "measurement_duration_s": 32400.000162960998,
+    "measured_flows": 2926140000,
+    "energy_per_flow_j": 7.885391547583102e-05,
+    "source_path": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1",
+    "sample_log_path": "manifests/hardware/jetson_power_ina3221_vdd_in_20260608T140153Z.csv"
+  }
+}

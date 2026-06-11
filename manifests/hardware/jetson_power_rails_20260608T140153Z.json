@@ -1,0 +1,26 @@
+[
+  {
+    "label": "VDD_IN",
+    "channel": "1",
+    "source_dir": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1",
+    "voltage_path": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1/in1_input",
+    "current_path": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1/curr1_input",
+    "power_path": ""
+  },
+  {
+    "label": "VDD_CPU_GPU_CV",
+    "channel": "2",
+    "source_dir": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1",
+    "voltage_path": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1/in2_input",
+    "current_path": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1/curr2_input",
+    "power_path": ""
+  },
+  {
+    "label": "VDD_SOC",
+    "channel": "3",
+    "source_dir": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1",
+    "voltage_path": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1/in3_input",
+    "current_path": "/sys/devices/platform/bus@0/c240000.i2c/i2c-1/1-0040/hwmon/hwmon1/curr3_input",
+    "power_path": ""
+  }
+]

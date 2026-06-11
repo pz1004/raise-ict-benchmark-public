@@ -1,0 +1,16 @@
+hardware_id: raspberry_pi_5_template
+device_class: physical_edge
+runtime: python_sklearn_cpu
+thread_count: 4
+batch_size: 1
+power_mode: replace_with_declared_power_or_governor_mode
+measurement_mode: unmeasured_template
+energy_source: none
+measurement_window: replace_with_inference_only_window_description
+average_power_w: 0.0
+measurement_duration_s: 0.0
+measured_flows: 1
+notes: >
+  Template only. Copy to configs/hardware/edge_device.yaml and replace
+  hardware_id, power_mode, measurement mode/source, and energy measurements
+  with values from the declared edge target before using in a Tier-E claim.

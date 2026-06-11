@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "require_tier_e": true,
+  "require_full_scale_cse": false,
+  "expected_raw_rows": 240,
+  "expected_summary_rows": 48,
+  "expected_models": [
+    "extra_trees",
+    "logistic_regression",
+    "random_forest"
+  ],
+  "complete": true,
+  "summary": {
+    "passed": 34,
+    "not_required": 1,
+    "incomplete": 0
+  },
+  "checks": [
+    {
+      "id": "artifacts.raw_present",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_raw_results.csv"
+    },
+    {
+      "id": "artifacts.summary_present",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_main_results.csv"
+    },
+    {
+      "id": "artifacts.split_manifest_present",
+      "status": "passed",
+      "evidence": "manifests/splits/tier_e_core4_split_manifest.csv"
+    },
+    {
+      "id": "artifacts.dataset_manifest_present",
+      "status": "passed",
+      "evidence": "manifests/dataset_hashes/tier_p_core4_download_manifest.json"
+    },
+    {
+      "id": "artifacts.feature_schema_present",
+      "status": "passed",
+      "evidence": "manifests/feature_schemas/tier_e_core4_feature_schema.json"
+    },
+    {
+      "id": "core4.raw_rows",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_raw_results.csv: 240"
+    },
+    {
+      "id": "core4.datasets",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_raw_results.csv: ['CICIDS2017', 'CSE-CIC-IDS2018', 'TON_IoT', 'UNSW-NB15']"
+    },
+    {
+      "id": "core4.models",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_raw_results.csv: ['extra_trees', 'logistic_regression', 'random_forest']"
+    },
+    {
+      "id": "core4.threats",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_raw_results.csv: ['a0_clean', 'a1_constrained_feature', 'a1_constrained_score_search', 'a4_split_shift']"
+    },
+    {
+      "id": "core4.seeds",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_raw_results.csv: [0, 1, 2, 3, 4]"
+    },
+    {
+      "id": "schema.result_fields",
+      "status": "passed",
+      "evidence": "all standard result fields are present"
+    },
+    {
+      "id": "attacks.validity_counts_present",
+      "status": "passed",
+      "evidence": "minimum valid+invalid count=5000"
+    },
+    {
+      "id": "attacks.validity_threshold",
+      "status": "passed",
+      "evidence": "minimum validity_rate=0.989"
+    },
+    {
+      "id": "profiling.profile_metadata_present",
+      "status": "passed",
+      "evidence": "thread_count, batch_size, runtime, mode, source present"
+    },
+    {
+      "id": "profiling.physical_edge_results_required",
+      "status": "passed",
+      "evidence": "hardware_id values=['jetson_orin_nx_super_ina3221_20260608t140153z']"
+    },
+    {
+      "id": "profiling.measured_energy_required",
+      "status": "passed",
+      "evidence": "minimum energy_per_flow_j=7.885391547583102e-05"
+    },
+    {
+      "id": "profiling.measured_energy_metadata_required",
+      "status": "passed",
+      "evidence": "measurement_mode=['measured_onboard_sensor'], energy_source=['jetson_ina3221_vdd_in']"
+    },
+    {
+      "id": "core4.summary_rows",
+      "status": "passed",
+      "evidence": "results/tables/tier_e_core4/table_main_results.csv: 48"
+    },
+    {
+      "id": "core4.split_rows",
+      "status": "passed",
+      "evidence": "manifests/splits/tier_e_core4_split_manifest.csv: 20"
+    },
+    {
+      "id": "splits.reproducibility_columns",
+      "status": "passed",
+      "evidence": "raw files, row counts, config, preprocessing hash, version present"
+    },
+    {
+      "id": "scale.full_cse_required",
+      "status": "not_required",
+      "evidence": "full-source CSE-CIC-IDS2018 is not required for the current Tier-P manuscript claim"
+    },
+    {
+      "id": "core4.dataset_manifest_records",
+      "status": "passed",
+      "evidence": "manifests/dataset_hashes/tier_p_core4_download_manifest.json: 15"
+    },
+    {
+      "id": "core4.feature_schema_records",
+      "status": "passed",
+      "evidence": "manifests/feature_schemas/tier_e_core4_feature_schema.json: 20"
+    },
+    {
+      "id": "features.reproducibility_fields",
+      "status": "passed",
+      "evidence": "preprocessing hash, config path, software version present"
+    },
+    {
+      "id": "tier_e.audit_present",
+      "status": "passed",
+      "evidence": "manifests/hardware/tier_e_hardware_audit.json"
+    },
+    {
+      "id": "tier_e.physical_edge_required",
+      "status": "passed",
+      "evidence": "{\"architecture\": \"aarch64\", \"matched_edge_markers\": [\"jetson\", \"orin\"], \"reasons\": [], \"tier_e_eligible\": true}"
+    },
+    {
+      "id": "tier_e.profile_manifest_present",
+      "status": "passed",
+      "evidence": "manifests/hardware/tier_e_profile_manifest.json"
+    },
+    {
+      "id": "tier_e.profile_manifest_measured_mode",
+      "status": "passed",
+      "evidence": "measurement_mode=measured_onboard_sensor, energy_source=jetson_ina3221_vdd_in"
+    },
+    {
+      "id": "tier_e.profile_manifest_hardware_match",
+      "status": "passed",
+      "evidence": "profile_hardware_id=jetson_orin_nx_super_ina3221_20260608t140153z"
+    },
+    {
+      "id": "tier_e.profile_manifest_energy",
+      "status": "passed",
+      "evidence": "energy_per_flow_j=7.885391547583102e-05"
+    },
+    {
+      "id": "manuscript.claim_boundaries",
+      "status": "passed",
+      "evidence": "Tier-E module-power and packet-level limits are explicit"
+    },
+    {
+      "id": "citations.key_count",
+      "status": "passed",
+      "evidence": "manuscript cite keys: 15"
+    },
+    {
+      "id": "citations.bib_count",
+      "status": "passed",
+      "evidence": "BibTeX entries: 15"
+    },
+    {
+      "id": "citations.no_missing_or_unused",
+      "status": "passed",
+      "evidence": "no missing or unused BibTeX keys"
+    },
+    {
+      "id": "citations.no_placeholders",
+      "status": "passed",
+      "evidence": "no placeholder citation markers"
+    }
+  ],
+  "blocking_requirements": []
+}

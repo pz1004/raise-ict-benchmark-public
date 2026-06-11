@@ -1,0 +1,34 @@
+[
+  {
+    "dataset_id": "CSE-CIC-IDS2018",
+    "path": "data/raw/cse_cic_ids2018/Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv",
+    "bytes": 328893673,
+    "sha256": "a5f4a1c2689e0aa6566c03a58466de9c407c0be0cbd3cc69306544026611be04",
+    "download_url": "https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2018.html"
+  },
+  {
+    "dataset_id": "CSE-CIC-IDS2018",
+    "path": "data/raw/cse_cic_ids2018/Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv",
+    "bytes": 209249758,
+    "sha256": "f15e2a12304446058a0186c8ad67de2bd15735a9ba5c70c9a1f4c4242ab06771",
+    "download_url": "https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2018.html"
+  },
+  {
+    "dataset_id": "CSE-CIC-IDS2018",
+    "path": "data/raw/cse_cic_ids2018/Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv",
+    "bytes": 107842858,
+    "sha256": "b0534c5d7d8b41e03df71c6966c995d116a8ed28e61f377c8b14cdf5d28f4edf",
+    "download_url": "https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2018.html"
+  },
+  {
+    "dataset_id": "CSE-CIC-IDS2018",
+    "path": "data/raw/cse_cic_ids2018/Friday-02-03-2018_TrafficForML_CICFlowMeter.csv",
+    "bytes": 352368373,
+    "sha256": "d96f38e7496aba83475031e6fb8c6fdf1abf6aa1b71325a917798f3c7de93de1",
+    "download_url": "https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Friday-02-03-2018_TrafficForML_CICFlowMeter.csv",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2018.html"
+  }
+]

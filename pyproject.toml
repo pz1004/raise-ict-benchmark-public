@@ -1,0 +1,28 @@
+[project]
+name = "raise-ict"
+version = "0.1.0"
+description = "RAISE-ICT benchmark harness scaffold for robust and efficient edge ICT intrusion detection."
+license = { text = "MIT" }
+requires-python = ">=3.10"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "pyarrow",
+  "pyyaml",
+  "scipy",
+  "scikit-learn",
+  "tabulate",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

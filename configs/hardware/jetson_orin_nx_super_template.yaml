@@ -1,0 +1,53 @@
+# RAISE-ICT Jetson Orin NX Super template.
+#
+# Copy this file to `configs/hardware/jetson_orin_nx_super.yaml` and replace
+# every measurement placeholder before using the result for Tier-E claims.
+# Leave this template unchanged as a non-claimable reference.
+
+# Replace with a run-specific ID such as `jetson_orin_nx16_super_maxn_ina3221`.
+hardware_id: jetson_orin_nx_super_unmeasured
+device_class: physical_edge
+runtime: python_sklearn_cpu
+
+# Record these from the device before the benchmark run. Extra keys are carried
+# into manifests for auditability even when the profiler does not consume them.
+jetson_linux_release: replace_with_nv_tegra_release
+jetpack_release: replace_with_jetpack_release
+l4t_core_package: replace_with_nvidia_l4t_core_package_version
+cuda_compiler_release: replace_with_nvcc_release_or_not_used
+device_tree_model: replace_with_proc_device_tree_model
+# Replace when known. `unknown` is acceptable only if the device-tree model,
+# module, and power-mode evidence are recorded.
+carrier_board: unknown
+
+# Use `nproc` on the Jetson and replace this value. Jetson Orin NX 16GB commonly
+# exposes 8 CPU cores; Orin NX 8GB may expose fewer depending on power mode.
+thread_count: 8
+batch_size: 1
+
+# Record the declared mode used for the run. Use the exact label printed by
+# `sudo nvpmodel -q --verbose`; do not normalize spaces or underscores.
+power_mode: replace_with_nvpmodel_mode
+
+# Strict Tier-E evidence requires a measured or explicitly proxied source, not
+# a fabricated value. For this Jetson workflow, use the software-readable
+# INA3221 VDD_IN sensor path from the guide.
+measurement_mode: unmeasured_template
+energy_source: none
+measurement_window: replace_with_inference_only_window_description
+
+# Use only if a software-readable sensor or runtime API directly estimates
+# per-flow energy. Otherwise fill average_power_w, duration, and flow count.
+# energy_per_flow_j: 0.000001
+
+# Alternative metadata path used by the profiler:
+# energy_per_flow_j = average_power_w * measurement_duration_s / measured_flows.
+# Keep these zeros until a real measurement window is recorded.
+average_power_w: 0.0
+measurement_duration_s: 0.0
+measured_flows: 1
+
+notes: >
+  Template only. Replace hardware_id, thread_count, power_mode, and energy
+  measurement values with Jetson Orin NX Super measurements before using a
+  strict Tier-E completion audit or manuscript edge-energy claim.

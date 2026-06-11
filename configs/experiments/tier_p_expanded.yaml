@@ -1,0 +1,149 @@
+experiment_id: tier_p_expanded_full_realdata
+profile_repeats: 2
+test_size: 0.3
+split_id: realdata_expanded_split
+datasets:
+  - dataset_id: UNSW-NB15
+    data_root: data/raw/unsw_nb15/temporal
+    train_file: train-00000-of-00001.parquet
+    test_file: test-00000-of-00001.parquet
+    split_id: unsw_nb15_official_full
+  - dataset_id: TON_IoT
+    path: data/raw/ton_iot/train_test_network.csv
+    split_strategy: attack_type_holdout
+    holdout_attack_types:
+      - ransomware
+      - mitm
+    holdout_normal_test_size: 0.3
+    split_id: ton_iot_attack_family_holdout_full
+models:
+  - model_id: logistic_regression
+  - model_id: random_forest
+  - model_id: extra_trees
+threats:
+  - threat_id: a0_clean
+    epsilon: 0.0
+    mutable_features: []
+    nonnegative_features: []
+  - threat_id: a1_constrained_feature
+    epsilon: 0.12
+    strategy: random
+    mutable_features:
+      - dur
+      - sbytes
+      - dbytes
+      - spkts
+      - dpkts
+      - rate
+      - duration
+      - src_bytes
+      - dst_bytes
+      - src_pkts
+      - dst_pkts
+      - missed_bytes
+      - src_ip_bytes
+      - dst_ip_bytes
+    nonnegative_features:
+      - dur
+      - sbytes
+      - dbytes
+      - spkts
+      - dpkts
+      - rate
+      - duration
+      - src_bytes
+      - dst_bytes
+      - src_pkts
+      - dst_pkts
+      - missed_bytes
+      - src_ip_bytes
+      - dst_ip_bytes
+  - threat_id: a1_constrained_score_search
+    epsilon: 0.12
+    strategy: score_search
+    n_candidates: 6
+    mutable_features:
+      - dur
+      - sbytes
+      - dbytes
+      - spkts
+      - dpkts
+      - rate
+      - duration
+      - src_bytes
+      - dst_bytes
+      - src_pkts
+      - dst_pkts
+      - missed_bytes
+      - src_ip_bytes
+      - dst_ip_bytes
+    nonnegative_features:
+      - dur
+      - sbytes
+      - dbytes
+      - spkts
+      - dpkts
+      - rate
+      - duration
+      - src_bytes
+      - dst_bytes
+      - src_pkts
+      - dst_pkts
+      - missed_bytes
+      - src_ip_bytes
+      - dst_ip_bytes
+  - threat_id: a4_split_shift
+    epsilon: 0.0
+    mutable_features: []
+    nonnegative_features: []
+seeds: [0, 1, 2, 3, 4]
+hardware:
+  hardware_id: cpu_proxy
+preprocessing:
+  categorical_columns:
+    - proto
+    - service
+    - state
+    - conn_state
+  drop_columns:
+    - id
+    - dataset_id
+    - split
+    - timestamp
+    - src_ip
+    - dst_ip
+    - src_port
+    - dst_port
+    - sport
+    - dsport
+    - attack_cat
+    - type
+    - attack_type
+    - group
+    - dns_query
+    - ssl_subject
+    - ssl_issuer
+    - ssl_version
+    - ssl_cipher
+    - http_uri
+    - http_user_agent
+    - http_orig_mime_types
+    - http_resp_mime_types
+    - weird_name
+    - weird_addl
+    - weird_notice
+  log_columns:
+    - dur
+    - sbytes
+    - dbytes
+    - spkts
+    - dpkts
+    - rate
+    - duration
+    - src_bytes
+    - dst_bytes
+    - src_pkts
+    - dst_pkts
+    - missed_bytes
+    - src_ip_bytes
+    - dst_ip_bytes

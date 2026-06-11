@@ -1,0 +1,17 @@
+threat_id: t1_constrained_feature
+epsilon: 0.12
+mutable_features:
+  - flow_duration
+  - fwd_packets
+  - bwd_packets
+  - fwd_bytes
+  - bwd_bytes
+  - iat_mean
+nonnegative_features:
+  - flow_duration
+  - fwd_packets
+  - bwd_packets
+  - fwd_bytes
+  - bwd_bytes
+  - iat_mean
+

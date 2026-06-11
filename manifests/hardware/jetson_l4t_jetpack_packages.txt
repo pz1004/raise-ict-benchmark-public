@@ -1,0 +1,2 @@
+nvidia-jetpack	6.2.1+b38
+nvidia-l4t-core	36.4.7-20250918154033

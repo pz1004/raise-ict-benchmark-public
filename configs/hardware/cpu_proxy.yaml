@@ -1,0 +1,4 @@
+hardware_id: cpu_proxy
+measurement_mode: proxy
+energy_per_flow_j: 0.0
+

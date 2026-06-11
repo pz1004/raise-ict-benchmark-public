@@ -1,0 +1,5 @@
+dataset,domain,feature_source,task,split_policy,role
+CICIDS2017,enterprise,CICFlowMeter CSV,IDS,day/scenario-aware,source-domain benchmark
+CSE-CIC-IDS2018,enterprise/cloud,CICFlowMeter-V3 CSV,IDS,day/scenario-aware,scale stress test
+UNSW-NB15,cyber range,Argus/Bro/CSV,IDS,official and group-aware,fixed-split comparison
+TON_IoT,IoT/IIoT,network/telemetry/OS traces,IDS,source/layer-aware,edge-fog-cloud benchmark

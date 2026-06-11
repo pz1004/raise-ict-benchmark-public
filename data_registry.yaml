@@ -1,0 +1,49 @@
+datasets:
+  - dataset_id: CICIDS2017
+    status: external
+    official_url: https://www.unb.ca/cic/datasets/ids-2017.html
+    mirror_policy: third_party_opt_in
+    third_party_mirror_urls:
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Monday-WorkingHours.pcap_ISCX.csv.parquet
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Tuesday-WorkingHours.pcap_ISCX.csv.parquet
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Wednesday-workingHours.pcap_ISCX.csv.parquet
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv.parquet
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv.parquet
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Friday-WorkingHours-Morning.pcap_ISCX.csv.parquet
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv.parquet
+      - https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.parquet
+    role: source-domain enterprise IDS benchmark
+    raw_data_committed: false
+  - dataset_id: CSE-CIC-IDS2018
+    status: external
+    official_url: https://www.unb.ca/cic/datasets/ids-2018.html
+    mirror_policy: third_party_opt_in
+    third_party_mirror_urls:
+      - https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv
+      - https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv
+      - https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv
+      - https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/resolve/main/data/Friday-02-03-2018_TrafficForML_CICFlowMeter.csv
+    role: enterprise/cloud scale stress test
+    raw_data_committed: false
+  - dataset_id: UNSW-NB15
+    status: external
+    official_url: https://research.unsw.edu.au/projects/unsw-nb15-dataset
+    mirror_policy: third_party_opt_in
+    third_party_mirror_urls:
+      - https://huggingface.co/datasets/lacg030175/UNSW-NB15/resolve/main/temporal/train-00000-of-00001.parquet
+      - https://huggingface.co/datasets/lacg030175/UNSW-NB15/resolve/main/temporal/test-00000-of-00001.parquet
+    role: fixed-split comparability benchmark
+    raw_data_committed: false
+  - dataset_id: TON_IoT
+    status: external
+    official_url: https://research.unsw.edu.au/projects/toniot-datasets
+    mirror_policy: third_party_opt_in
+    third_party_mirror_urls:
+      - https://huggingface.co/datasets/codymlewis/TON_IoT_network/resolve/main/train_test_network.csv
+    role: IoT/IIoT edge-fog-cloud benchmark
+    raw_data_committed: false
+  - dataset_id: synthetic_raise_ict
+    status: built-in
+    official_url: null
+    role: test and smoke-run dataset
+    raw_data_committed: false

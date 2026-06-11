@@ -1,0 +1,66 @@
+[
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Monday-WorkingHours.pcap_ISCX.csv.parquet",
+    "bytes": 57011041,
+    "sha256": "fd6f986b33712f1986e6057c60f88b729d6e39a93bd107a6b0a53ae33958a22e",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Monday-WorkingHours.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  },
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Tuesday-WorkingHours.pcap_ISCX.csv.parquet",
+    "bytes": 45553171,
+    "sha256": "9fda00044283648f09ce6257a6bddc39c4e3a967d7a609ff808247727a4fcabb",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Tuesday-WorkingHours.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  },
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Wednesday-workingHours.pcap_ISCX.csv.parquet",
+    "bytes": 67414946,
+    "sha256": "3dd43daf2148052d76c2b8daa742a911e066c4d3cd4ba4ce933e53ccd1544592",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Wednesday-workingHours.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  },
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv.parquet",
+    "bytes": 17249369,
+    "sha256": "86ccdefdcd9c85e5d8fa159412d7402a66e97b9d9453c17de0156ac0c6999cc7",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  },
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv.parquet",
+    "bytes": 24090104,
+    "sha256": "453bcb6400cf1cff4bd00404a3134f23e28b8541c7346566d984c733f3e62362",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  },
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Friday-WorkingHours-Morning.pcap_ISCX.csv.parquet",
+    "bytes": 19352181,
+    "sha256": "e3cb0a243142fca1cfe0cd69437fa930a047f550c71353d34afbf618bd120427",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Friday-WorkingHours-Morning.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  },
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv.parquet",
+    "bytes": 15688379,
+    "sha256": "a49a5f5230ef15fbd60079a93db12c5a549913dfed66a142592c27c7264b08d7",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  },
+  {
+    "dataset_id": "CICIDS2017",
+    "path": "data/raw/cicids2017/machine_learning/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.parquet",
+    "bytes": 22188516,
+    "sha256": "022ab31ab239f07e11a6458ee771eea0317a001d68398242cb36f5a4be66f972",
+    "download_url": "https://huggingface.co/datasets/bvsam/cic-ids-2017/resolve/main/machine_learning/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.parquet",
+    "official_source": "https://www.unb.ca/cic/datasets/ids-2017.html"
+  }
+]

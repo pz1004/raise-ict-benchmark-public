@@ -1,6 +1,6 @@
 # RAISE-ICT Benchmark Public Bundle
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20637748.svg)](https://doi.org/10.5281/zenodo.20637748)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20637748.svg)](https://doi.org/10.5281/zenodo.20646047)
 
 The badge identifies the Zenodo concept record for the public evidence bundle. If Zenodo assigns a new version-specific record DOI for this upload, use that version-specific DOI in submission metadata.
 

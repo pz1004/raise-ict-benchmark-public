@@ -37,13 +37,13 @@ def test_synthetic_loader_and_preprocessor_share_train_schema() -> None:
     assert "service=unseen_service" not in x_test.columns
 
 
-def test_public_model_factory_supports_only_verified_baselines() -> None:
-    for model_id in ["logistic_regression", "random_forest", "extra_trees"]:
+def test_public_model_factory_supports_verified_models() -> None:
+    for model_id in ["logistic_regression", "random_forest", "extra_trees", "mlp_sklearn"]:
         model = build_model(model_id, seed=5)
         assert hasattr(model, "fit")
         assert hasattr(model, "predict")
 
-    unsupported_model = "m" + "lp_sklearn"
+    unsupported_model = "unsupported_neural_ids"
     with pytest.raises(ValueError, match="Unsupported model_id"):
         build_model(unsupported_model)
 
@@ -82,7 +82,8 @@ def test_included_core4_evidence_passes_strict_audit_with_anonymous_claim_fixtur
     bibliography = tmp_path / "anonymous_references.bib"
     manuscript.write_text(
         "Tier-E module-power evidence is not calibrated wall-power. "
-        "The feature-space validity does not prove packet-level replayability. "
+        "feature-space validity does not prove packet-level generation, protocol-level consistency, "
+        "or simulator-backed replayability. "
         "\\cite{raiseict}",
         encoding="utf-8",
     )
@@ -92,19 +93,19 @@ def test_included_core4_evidence_passes_strict_audit_with_anonymous_claim_fixtur
     )
 
     report = audit_completion(
-        raw_results_path=ROOT / "results/tables/tier_e_core4/table_raw_results.csv",
-        summary_results_path=ROOT / "results/tables/tier_e_core4/table_main_results.csv",
-        split_manifest_path=ROOT / "manifests/splits/tier_e_core4_split_manifest.csv",
+        raw_results_path=ROOT / "results/tables/tier_e_core4_mlp_challenger/table_raw_results.csv",
+        summary_results_path=ROOT / "results/tables/tier_e_core4_mlp_challenger/table_main_results.csv",
+        split_manifest_path=ROOT / "manifests/splits/tier_e_core4_mlp_challenger_split_manifest.csv",
         dataset_manifest_path=ROOT / "manifests/dataset_hashes/tier_p_core4_download_manifest.json",
-        feature_schema_path=ROOT / "manifests/feature_schemas/tier_e_core4_feature_schema.json",
-        hardware_audit_path=ROOT / "manifests/hardware/tier_e_hardware_audit.json",
-        profile_manifest_path=ROOT / "manifests/hardware/tier_e_profile_manifest.json",
+        feature_schema_path=ROOT / "manifests/feature_schemas/tier_e_core4_mlp_challenger_feature_schema.json",
+        hardware_audit_path=ROOT / "manifests/hardware/tier_e_mlp_challenger_hardware_audit.json",
+        profile_manifest_path=ROOT / "manifests/hardware/tier_e_core4_mlp_challenger_profile_manifest.json",
         manuscript_path=manuscript,
         bibliography_path=bibliography,
         require_tier_e=True,
-        expected_raw_rows=240,
-        expected_summary_rows=48,
-        expected_models=["extra_trees", "logistic_regression", "random_forest"],
+        expected_raw_rows=320,
+        expected_summary_rows=64,
+        expected_models=["extra_trees", "logistic_regression", "mlp_sklearn", "random_forest"],
     )
 
     assert report["complete"] is True
@@ -135,11 +136,11 @@ def test_dataset_download_requires_explicit_third_party_mirror_opt_in(tmp_path: 
     assert not manifest.exists()
 
 
-def test_tier_e_core4_dry_run_uses_anonymous_public_paths() -> None:
+def test_tier_e_core4_mlp_dry_run_uses_anonymous_public_paths() -> None:
     result = subprocess.run(
         [
             sys.executable,
-            "scripts/run_tier_e_core4.py",
+            "scripts/run_tier_e_core4_mlp_challenger.py",
             "--hardware-config",
             "configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml",
             "--dry-run",
@@ -152,22 +153,26 @@ def test_tier_e_core4_dry_run_uses_anonymous_public_paths() -> None:
     commands = json.loads(result.stdout)["commands"]
     flattened = [" ".join(command) for command in commands]
 
-    assert len(commands) == 10
+    assert len(commands) == 21
     assert any("scripts/check_completion.py" in command for command in flattened)
     assert any("anonymous_manuscript.tex" in command for command in flattened)
     assert not any("jk" + "ics/" in command for command in flattened)
-    assert not any("m" + "lp" in command.lower() for command in flattened)
+    assert any("m" + "lp_sklearn" in command.lower() for command in flattened)
+    assert any("tier_e_core4_mlp_challenger" in command for command in flattened)
 
 
-def test_tier_e_core4_skip_completion_audit_removes_manuscript_gate() -> None:
+def test_tier_e_core4_mlp_accepts_explicit_manuscript_paths() -> None:
     result = subprocess.run(
         [
             sys.executable,
-            "scripts/run_tier_e_core4.py",
+            "scripts/run_tier_e_core4_mlp_challenger.py",
             "--hardware-config",
             "configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml",
             "--dry-run",
-            "--skip-completion-audit",
+            "--manuscript",
+            "/tmp/submission/jkics.tex",
+            "--bibliography",
+            "/tmp/submission/reference.bib",
         ],
         cwd=ROOT,
         check=True,
@@ -176,6 +181,7 @@ def test_tier_e_core4_skip_completion_audit_removes_manuscript_gate() -> None:
     )
     commands = [" ".join(command) for command in json.loads(result.stdout)["commands"]]
 
-    assert not any("scripts/check_completion.py" in command for command in commands)
+    assert any("/tmp/submission/jkics.tex" in command for command in commands)
+    assert any("/tmp/submission/reference.bib" in command for command in commands)
     assert not any("anonymous_manuscript.tex" in command for command in commands)
     assert any("--write-profile-manifest-only" in command for command in commands)

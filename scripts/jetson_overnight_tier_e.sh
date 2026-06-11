@@ -4,7 +4,7 @@
 # Default behavior:
 # - Capture hardware/software evidence.
 # - Discover INA3221 rails and require VDD_IN.
-# - Download bounded Core4 dataset mirrors if explicitly allowed.
+# - Download bounded Core4 dataset mirrors if missing.
 # - Run a short synthetic INA3221 smoke window.
 # - Run a 9-hour real-data inference-only INA3221 VDD_IN calibration.
 # - Generate a measured onboard-sensor hardware YAML.
@@ -316,7 +316,7 @@ if sudo -n true >/dev/null 2>&1; then
   capture_cmd manifests/hardware/jetson_nvpmodel_selected.txt sudo -n nvpmodel -q --verbose
   capture_cmd manifests/hardware/jetson_clocks_selected.txt sudo -n jetson_clocks --show
 else
-  log "sudo credential is not cached; skipping nvpmodel and jetson_clocks capture"
+  log "sudo password is not cached; skipping nvpmodel and jetson_clocks capture"
 fi
 
 section "Start Telemetry"
@@ -355,15 +355,11 @@ verify_energy_json "$SMOKE_JSON"
 
 if [[ "$DOWNLOAD_DATA" == "1" ]]; then
   section "Dataset Downloads"
+  run "$PYTHON" scripts/download_datasets.py --datasets UNSW-NB15 TON_IoT
   run "$PYTHON" scripts/download_datasets.py \
-    --allow-third-party-mirrors \
-    --datasets UNSW-NB15 TON_IoT
-  run "$PYTHON" scripts/download_datasets.py \
-    --allow-third-party-mirrors \
     --datasets CICIDS2017 \
     --manifest manifests/dataset_hashes/cicids2017_download_manifest.json
   run "$PYTHON" scripts/download_datasets.py \
-    --allow-third-party-mirrors \
     --datasets CSE-CIC-IDS2018 \
     --manifest manifests/dataset_hashes/cse_cic_ids2018_download_manifest.json
   run "$PYTHON" scripts/merge_artifacts.py \
@@ -400,8 +396,7 @@ log "+ ${PYTHON} scripts/validate_hardware_config.py --config ${HARDWARE_CONFIG}
 if [[ "$RUN_CORE4" == "1" ]]; then
   section "Tier-E Core4"
   run "$PYTHON" scripts/run_tier_e_core4.py \
-    --hardware-config "$HARDWARE_CONFIG" \
-    --skip-completion-audit
+    --hardware-config "$HARDWARE_CONFIG"
 else
   section "Tier-E Core4"
   log "skipped by RAISE_ICT_RUN_CORE4=${RUN_CORE4}"

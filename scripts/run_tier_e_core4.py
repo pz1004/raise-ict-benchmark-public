@@ -8,7 +8,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any
 
 from _bootstrap import bootstrap
 
@@ -17,31 +17,7 @@ bootstrap()
 from raise_ict.config import load_yaml  # noqa: E402
 
 
-Command = list[str]
-
-
-class EdgeRun(TypedDict):
-    """Tier-E component run paths used to build the Core4 command graph."""
-
-    name: str
-    config: str
-    raw: str
-    split: str
-    features: str
-    profile: str
-
-
-CORE4_SPLIT_MANIFEST = "manifests/splits/tier_e_core4_split_manifest.csv"
-CORE4_FEATURE_SCHEMA = "manifests/feature_schemas/tier_e_core4_feature_schema.json"
-CORE4_RESULT_TABLE_DIR = "results/tables/tier_e_core4"
-CORE4_FIGURE_DIR = "results/figures/tier_e_core4"
-CORE4_HARDWARE_AUDIT = "manifests/hardware/tier_e_hardware_audit.json"
-CORE4_PROFILE_MANIFEST = "manifests/hardware/tier_e_profile_manifest.json"
-CORE4_COMPLETION_AUDIT = "manifests/completion/benchmark_completion_audit_strict_tier_e.json"
-DATASET_MANIFEST = "manifests/dataset_hashes/tier_p_core4_download_manifest.json"
-
-
-EDGE_RUNS: list[EdgeRun] = [
+EDGE_RUNS = [
     {
         "name": "expanded",
         "config": "configs/experiments/tier_p_expanded.yaml",
@@ -69,45 +45,8 @@ EDGE_RUNS: list[EdgeRun] = [
 ]
 
 
-def _command(*parts: str) -> Command:
+def _command(*parts: str) -> list[str]:
     return [sys.executable, *parts]
-
-
-def _profile_manifest_command(hardware_config: str) -> Command:
-    return _command(
-        "scripts/run_tier_e_core4.py",
-        "--hardware-config",
-        hardware_config,
-        "--write-profile-manifest-only",
-    )
-
-
-def _completion_audit_command(manuscript: str, bibliography: str, strict: bool) -> Command:
-    return _command(
-        "scripts/check_completion.py",
-        "--require-tier-e",
-        "--raw-results",
-        f"{CORE4_RESULT_TABLE_DIR}/table_raw_results.csv",
-        "--summary-results",
-        f"{CORE4_RESULT_TABLE_DIR}/table_main_results.csv",
-        "--split-manifest",
-        CORE4_SPLIT_MANIFEST,
-        "--dataset-manifest",
-        DATASET_MANIFEST,
-        "--feature-schema",
-        CORE4_FEATURE_SCHEMA,
-        "--hardware-audit",
-        CORE4_HARDWARE_AUDIT,
-        "--profile-manifest",
-        CORE4_PROFILE_MANIFEST,
-        "--manuscript",
-        manuscript,
-        "--bibliography",
-        bibliography,
-        "--out",
-        CORE4_COMPLETION_AUDIT,
-        *(["--strict"] if strict else []),
-    )
 
 
 def build_commands(
@@ -115,15 +54,14 @@ def build_commands(
     strict: bool = True,
     manuscript: str = "anonymous_manuscript.tex",
     bibliography: str = "anonymous_references.bib",
-    include_completion_audit: bool = True,
-) -> list[Command]:
+) -> list[list[str]]:
     """Build the Tier-E Core4 command graph without executing it."""
     raw_dirs = [run["raw"] for run in EDGE_RUNS]
     split_files = [run["split"] for run in EDGE_RUNS]
     feature_files = [run["features"] for run in EDGE_RUNS]
-    commands: list[Command] = [
+    commands = [
         _command("scripts/validate_hardware_config.py", "--config", hardware_config),
-        _command("scripts/audit_hardware.py", "--out", CORE4_HARDWARE_AUDIT),
+        _command("scripts/audit_hardware.py", "--out", "manifests/hardware/tier_e_hardware_audit.json"),
     ]
     for run in EDGE_RUNS:
         commands.append(
@@ -149,33 +87,56 @@ def build_commands(
                 "scripts/merge_artifacts.py",
                 *split_files,
                 "--out",
-                CORE4_SPLIT_MANIFEST,
+                "manifests/splits/tier_e_core4_split_manifest.csv",
             ),
             _command(
                 "scripts/merge_artifacts.py",
                 *feature_files,
                 "--out",
-                CORE4_FEATURE_SCHEMA,
+                "manifests/feature_schemas/tier_e_core4_feature_schema.json",
             ),
             _command(
                 "scripts/aggregate_results.py",
                 "--results",
                 *raw_dirs,
                 "--out",
-                CORE4_RESULT_TABLE_DIR,
+                "results/tables/tier_e_core4",
                 "--figures",
-                CORE4_FIGURE_DIR,
+                "results/figures/tier_e_core4",
+            ),
+            _command(
+                "scripts/check_completion.py",
+                "--require-tier-e",
+                "--raw-results",
+                "results/tables/tier_e_core4/table_raw_results.csv",
+                "--summary-results",
+                "results/tables/tier_e_core4/table_main_results.csv",
+                "--split-manifest",
+                "manifests/splits/tier_e_core4_split_manifest.csv",
+                "--dataset-manifest",
+                "manifests/dataset_hashes/tier_p_core4_download_manifest.json",
+                "--feature-schema",
+                "manifests/feature_schemas/tier_e_core4_feature_schema.json",
+                "--hardware-audit",
+                "manifests/hardware/tier_e_hardware_audit.json",
+                "--profile-manifest",
+                "manifests/hardware/tier_e_profile_manifest.json",
+                "--manuscript",
+                manuscript,
+                "--bibliography",
+                bibliography,
+                "--out",
+                "manifests/completion/benchmark_completion_audit_strict_tier_e.json",
+                *(["--strict"] if strict else []),
             ),
         ]
     )
-    if include_completion_audit:
-        commands.append(_completion_audit_command(manuscript, bibliography, strict))
     return commands
 
 
 def write_combined_profile_manifest(
     hardware_config: str,
-    out: str = CORE4_PROFILE_MANIFEST,
+    out: str = "manifests/hardware/tier_e_profile_manifest.json",
 ) -> Path:
     """Merge per-run Tier-E profile manifests into the strict audit manifest."""
     hardware = load_yaml(hardware_config)
@@ -208,7 +169,7 @@ def write_combined_profile_manifest(
     return out_path
 
 
-def run_commands(commands: list[Command]) -> None:
+def run_commands(commands: list[list[str]]) -> None:
     """Run generated commands sequentially with subprocess failure propagation."""
     for command in commands:
         subprocess.run(command, check=True)
@@ -219,32 +180,28 @@ def main() -> None:
     parser.add_argument("--hardware-config", required=True)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--no-strict", action="store_true")
-    parser.add_argument("--skip-completion-audit", action="store_true")
+    parser.add_argument("--write-profile-manifest-only", action="store_true")
     parser.add_argument("--manuscript", default="anonymous_manuscript.tex")
     parser.add_argument("--bibliography", default="anonymous_references.bib")
-    parser.add_argument("--write-profile-manifest-only", action="store_true")
     args = parser.parse_args()
     commands = build_commands(
         args.hardware_config,
         strict=not args.no_strict,
         manuscript=args.manuscript,
         bibliography=args.bibliography,
-        include_completion_audit=not args.skip_completion_audit,
     )
     if args.write_profile_manifest_only:
         print(write_combined_profile_manifest(args.hardware_config))
         return
-    profile_manifest_command = _profile_manifest_command(args.hardware_config)
+    profile_manifest_command = [
+        sys.executable,
+        "scripts/run_tier_e_core4.py",
+        "--hardware-config",
+        args.hardware_config,
+        "--write-profile-manifest-only",
+    ]
     if args.dry_run:
-        if args.skip_completion_audit:
-            dry_run_commands = commands + [profile_manifest_command]
-        else:
-            dry_run_commands = commands[:-1] + [profile_manifest_command, commands[-1]]
-        print(json.dumps({"commands": dry_run_commands}, indent=2))
-        return
-    if args.skip_completion_audit:
-        run_commands(commands)
-        print(write_combined_profile_manifest(args.hardware_config))
+        print(json.dumps({"commands": commands[:-1] + [profile_manifest_command, commands[-1]]}, indent=2))
         return
     run_commands(commands[:-1])
     print(write_combined_profile_manifest(args.hardware_config))

@@ -1,0 +1,72 @@
+experiment_id: tier_p_cse_cic_ids2018_random_control_mlp
+profile_repeats: 2
+test_size: 0.3
+split_id: cse_cic_ids2018_random_control
+datasets:
+  - dataset_id: CSE-CIC-IDS2018
+    data_root: data/raw/cse_cic_ids2018
+    files:
+      - Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv
+      - Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv
+      - Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv
+      - Friday-02-03-2018_TrafficForML_CICFlowMeter.csv
+    max_rows_per_file: 5000
+    split_strategy: stratified_random
+    split_id: cse_cic_ids2018_random_control_sample
+models:
+  - model_id: mlp_sklearn
+threats:
+  - threat_id: a0_clean
+    epsilon: 0.0
+    mutable_features: []
+    nonnegative_features: []
+seeds: [0, 1, 2, 3, 4]
+hardware:
+  hardware_id: cpu_proxy
+preprocessing:
+  categorical_columns: []
+  drop_columns:
+    - id
+    - dataset_id
+    - split
+    - timestamp
+    - src_ip
+    - dst_ip
+    - src_port
+    - dst_port
+    - source_ip
+    - destination_ip
+    - source_port
+    - destination_port
+    - attack_cat
+    - type
+    - attack_type
+    - day
+    - date
+    - scenario
+    - group
+  log_columns:
+    - flow_duration
+    - tot_fwd_pkts
+    - tot_bwd_pkts
+    - totlen_fwd_pkts
+    - totlen_bwd_pkts
+    - flow_byts_s
+    - flow_pkts_s
+    - flow_iat_mean
+    - flow_iat_std
+    - flow_iat_max
+    - flow_iat_min
+    - fwd_iat_tot
+    - fwd_iat_mean
+    - fwd_iat_std
+    - fwd_iat_max
+    - fwd_iat_min
+    - bwd_iat_tot
+    - bwd_iat_mean
+    - bwd_iat_std
+    - bwd_iat_max
+    - bwd_iat_min
+    - fwd_pkts_s
+    - bwd_pkts_s
+    - pkt_size_avg

@@ -201,7 +201,7 @@
       "state=no"
     ],
     "preprocessing_state_sha256": "8f47a868529bc27cfe1f2d7304a0f3b476d0de8716464a992281aed7e8c34237",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -406,7 +406,7 @@
       "state=no"
     ],
     "preprocessing_state_sha256": "8f47a868529bc27cfe1f2d7304a0f3b476d0de8716464a992281aed7e8c34237",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -611,7 +611,7 @@
       "state=no"
     ],
     "preprocessing_state_sha256": "8f47a868529bc27cfe1f2d7304a0f3b476d0de8716464a992281aed7e8c34237",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -816,7 +816,7 @@
       "state=no"
     ],
     "preprocessing_state_sha256": "8f47a868529bc27cfe1f2d7304a0f3b476d0de8716464a992281aed7e8c34237",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1021,7 +1021,7 @@
       "state=no"
     ],
     "preprocessing_state_sha256": "8f47a868529bc27cfe1f2d7304a0f3b476d0de8716464a992281aed7e8c34237",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1079,7 +1079,7 @@
       "conn_state=SHR"
     ],
     "preprocessing_state_sha256": "5d7ef13326a62fe67b086641ecbab539f8eed090359a55a029ee1a61dbda66ce",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1137,7 +1137,7 @@
       "conn_state=SHR"
     ],
     "preprocessing_state_sha256": "4d0cbacdebde4e7676ad5505614b53275431520b78767fe691fab299c3d576ff",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1195,7 +1195,7 @@
       "conn_state=SHR"
     ],
     "preprocessing_state_sha256": "c7151b8a1ef4edcc221d9f41023c60ab82d07852fcdbcf57c2c0ca3bbe8ed8ee",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1253,7 +1253,7 @@
       "conn_state=SHR"
     ],
     "preprocessing_state_sha256": "d303b92a26705759f970055ffa3d6af303caa89273be58a0b9a2ee2acf07655d",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1311,7 +1311,7 @@
       "conn_state=SHR"
     ],
     "preprocessing_state_sha256": "1cb8df7b674e28ccf3999788420ff577268c32424e356c096d0fbd1193ec0a8c",
-    "config_path": "configs/experiments/tier_p_expanded.yaml",
+    "config_path": "configs/experiments/tier_p_expanded_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1399,7 +1399,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "c1a742e08c7ef81748b8a538e7a6a7d71046a45539e1067d3979fe7984cc55e1",
-    "config_path": "configs/experiments/tier_p_cicids2017.yaml",
+    "config_path": "configs/experiments/tier_p_cicids2017_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1487,7 +1487,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "dda0d04b7b5243543b3b901e78c630c688728729dc345fa894703feadcf095ac",
-    "config_path": "configs/experiments/tier_p_cicids2017.yaml",
+    "config_path": "configs/experiments/tier_p_cicids2017_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1575,7 +1575,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "1c850558226c77cd66dc1d6b24325d24a6c18a723efa2321e4ec284a6edd21ce",
-    "config_path": "configs/experiments/tier_p_cicids2017.yaml",
+    "config_path": "configs/experiments/tier_p_cicids2017_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1663,7 +1663,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "f53ede00bdb7188e4b262fb87fee7ecc2bd99448d4434706334678781c0b9e6e",
-    "config_path": "configs/experiments/tier_p_cicids2017.yaml",
+    "config_path": "configs/experiments/tier_p_cicids2017_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1751,7 +1751,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "83a33f689ce51881ad2773568a01cbe7d54d794e380216ddfc4c903bdf74fa46",
-    "config_path": "configs/experiments/tier_p_cicids2017.yaml",
+    "config_path": "configs/experiments/tier_p_cicids2017_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1839,7 +1839,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "ac9d32e282a9c3432aebab298bf6bff33d6f69fdcbbc0b4fb8c8bd38eda40211",
-    "config_path": "configs/experiments/tier_p_cse_cic_ids2018.yaml",
+    "config_path": "configs/experiments/tier_p_cse_cic_ids2018_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -1927,7 +1927,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "d9c7ca30a503ba8288470331771f2a99b1f27ef8edba15973a9e1b648179b93c",
-    "config_path": "configs/experiments/tier_p_cse_cic_ids2018.yaml",
+    "config_path": "configs/experiments/tier_p_cse_cic_ids2018_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -2015,7 +2015,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "e435497dc37450bf3b309c0cf0ffe11c1afb5225ef97b06c37e9594e0586c523",
-    "config_path": "configs/experiments/tier_p_cse_cic_ids2018.yaml",
+    "config_path": "configs/experiments/tier_p_cse_cic_ids2018_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -2103,7 +2103,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "3d851933585ac3376804487dd04ae549fe64a409812413cddd52659839f64624",
-    "config_path": "configs/experiments/tier_p_cse_cic_ids2018.yaml",
+    "config_path": "configs/experiments/tier_p_cse_cic_ids2018_mlp.yaml",
     "software_version": "0.1.0"
   },
   {
@@ -2191,7 +2191,7 @@
       "idle_min"
     ],
     "preprocessing_state_sha256": "e83f0063d2ede8d890fde48d8b13f3f5b25c3ac866caacd0310503c117dc92d4",
-    "config_path": "configs/experiments/tier_p_cse_cic_ids2018.yaml",
+    "config_path": "configs/experiments/tier_p_cse_cic_ids2018_mlp.yaml",
     "software_version": "0.1.0"
   }
 ]

@@ -38,7 +38,13 @@ def test_synthetic_loader_and_preprocessor_share_train_schema() -> None:
 
 
 def test_public_model_factory_supports_verified_models() -> None:
-    for model_id in ["logistic_regression", "random_forest", "extra_trees", "mlp_sklearn"]:
+    for model_id in [
+        "logistic_regression",
+        "random_forest",
+        "extra_trees",
+        "hist_gradient_boosting",
+        "mlp_sklearn",
+    ]:
         model = build_model(model_id, seed=5)
         assert hasattr(model, "fit")
         assert hasattr(model, "predict")
@@ -93,19 +99,32 @@ def test_included_core4_evidence_passes_strict_audit_with_anonymous_claim_fixtur
     )
 
     report = audit_completion(
-        raw_results_path=ROOT / "results/tables/tier_e_core4_mlp_challenger/table_raw_results.csv",
-        summary_results_path=ROOT / "results/tables/tier_e_core4_mlp_challenger/table_main_results.csv",
-        split_manifest_path=ROOT / "manifests/splits/tier_e_core4_mlp_challenger_split_manifest.csv",
+        raw_results_path=ROOT / "results/tables/tier_e_core4_hgb_mlp_timed/table_raw_results.csv",
+        summary_results_path=ROOT / "results/tables/tier_e_core4_hgb_mlp_timed/table_main_results.csv",
+        split_manifest_path=ROOT / "manifests/splits/tier_e_core4_hgb_mlp_timed_split_manifest.csv",
         dataset_manifest_path=ROOT / "manifests/dataset_hashes/tier_p_core4_download_manifest.json",
-        feature_schema_path=ROOT / "manifests/feature_schemas/tier_e_core4_mlp_challenger_feature_schema.json",
-        hardware_audit_path=ROOT / "manifests/hardware/tier_e_mlp_challenger_hardware_audit.json",
-        profile_manifest_path=ROOT / "manifests/hardware/tier_e_core4_mlp_challenger_profile_manifest.json",
+        feature_schema_path=ROOT / "manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_feature_schema.json",
+        hardware_audit_path=ROOT / "manifests/hardware/tier_e_core4_hgb_mlp_timed_hardware_audit.json",
+        profile_manifest_path=ROOT / "manifests/hardware/tier_e_core4_hgb_mlp_timed_profile_manifest.json",
         manuscript_path=manuscript,
         bibliography_path=bibliography,
         require_tier_e=True,
-        expected_raw_rows=320,
-        expected_summary_rows=64,
-        expected_models=["extra_trees", "logistic_regression", "mlp_sklearn", "random_forest"],
+        expected_raw_rows=800,
+        expected_summary_rows=80,
+        expected_split_rows=40,
+        expected_feature_schema_records=40,
+        expected_models=[
+            "extra_trees",
+            "hist_gradient_boosting",
+            "logistic_regression",
+            "mlp_sklearn",
+            "random_forest",
+        ],
+        expected_seeds=list(range(10)),
+        require_timing=True,
+        timing_events_path=ROOT / "results/timing/tier_e_core4_hgb_mlp_timed/timing_events.csv",
+        timing_summary_path=ROOT / "results/timing/tier_e_core4_hgb_mlp_timed/timing_summary.csv",
+        command_timeline_path=ROOT / "results/timing/tier_e_core4_hgb_mlp_timed/command_timeline.json",
     )
 
     assert report["complete"] is True
@@ -136,13 +155,28 @@ def test_dataset_download_requires_explicit_third_party_mirror_opt_in(tmp_path: 
     assert not manifest.exists()
 
 
-def test_tier_e_core4_mlp_dry_run_uses_anonymous_public_paths() -> None:
+def test_timed_tier_e_dry_run_uses_anonymous_public_paths() -> None:
     result = subprocess.run(
         [
             sys.executable,
-            "scripts/run_tier_e_core4_mlp_challenger.py",
+            "scripts/run_tier_e_core4_hgb_mlp_timed.py",
             "--hardware-config",
             "configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml",
+            "--seeds",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "--manuscript",
+            "anonymous_manuscript.tex",
+            "--bibliography",
+            "anonymous_references.bib",
             "--dry-run",
         ],
         cwd=ROOT,
@@ -153,21 +187,33 @@ def test_tier_e_core4_mlp_dry_run_uses_anonymous_public_paths() -> None:
     commands = json.loads(result.stdout)["commands"]
     flattened = [" ".join(command) for command in commands]
 
-    assert len(commands) == 21
+    assert len(commands) == 19
     assert any("scripts/check_completion.py" in command for command in flattened)
     assert any("anonymous_manuscript.tex" in command for command in flattened)
     assert not any("jk" + "ics/" in command for command in flattened)
     assert any("m" + "lp_sklearn" in command.lower() for command in flattened)
-    assert any("tier_e_core4_mlp_challenger" in command for command in flattened)
+    assert any("hist_gradient_boosting" in command.lower() for command in flattened)
+    assert any("tier_e_core4_hgb_mlp_timed" in command for command in flattened)
 
 
-def test_tier_e_core4_mlp_accepts_explicit_manuscript_paths() -> None:
+def test_timed_tier_e_accepts_explicit_manuscript_paths() -> None:
     result = subprocess.run(
         [
             sys.executable,
-            "scripts/run_tier_e_core4_mlp_challenger.py",
+            "scripts/run_tier_e_core4_hgb_mlp_timed.py",
             "--hardware-config",
             "configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml",
+            "--seeds",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
             "--dry-run",
             "--manuscript",
             "/tmp/submission/jkics.tex",

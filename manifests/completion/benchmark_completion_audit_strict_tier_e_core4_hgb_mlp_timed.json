@@ -214,12 +214,12 @@
     {
       "id": "citations.key_count",
       "status": "passed",
-      "evidence": "manuscript cite keys: 1"
+      "evidence": "manuscript cite keys: 15"
     },
     {
       "id": "citations.bib_count",
       "status": "passed",
-      "evidence": "BibTeX entries: 1"
+      "evidence": "BibTeX entries: 15"
     },
     {
       "id": "citations.no_missing_or_unused",

@@ -16,6 +16,17 @@ EXPECTED_DATASETS = ["CICIDS2017", "CSE-CIC-IDS2018", "TON_IoT", "UNSW-NB15"]
 EXPECTED_MODELS = ["extra_trees", "logistic_regression", "random_forest"]
 EXPECTED_THREATS = ["a0_clean", "a1_constrained_feature", "a1_constrained_score_search", "a4_split_shift"]
 EXPECTED_SEEDS = [0, 1, 2, 3, 4]
+EXPECTED_TIMING_STAGES = [
+    "dataset_load",
+    "preprocess_manifest",
+    "model_training",
+    "threat_evaluation",
+    "result_writing",
+    "aggregate_results",
+    "analysis",
+    "admissibility_rejection",
+    "strict_audit",
+]
 
 
 def _passed(check_id: str, evidence: str) -> dict[str, str]:
@@ -154,6 +165,66 @@ def _profile_manifest_checks(
     return checks
 
 
+def _timing_checks(
+    require_timing: bool,
+    timing_events_path: Path,
+    timing_summary_path: Path,
+    command_timeline_path: Path,
+    expected_stages: list[str],
+) -> list[dict[str, str]]:
+    if not require_timing:
+        return [_not_required("timing.sidecars_present", "timing sidecars are not required")]
+
+    events = _read_csv(timing_events_path)
+    summary = _read_csv(timing_summary_path)
+    timeline = _read_json(command_timeline_path)
+    checks: list[dict[str, str]] = []
+    checks.append(
+        _passed("timing.events_present", str(timing_events_path))
+        if events is not None
+        else _incomplete("timing.events_present", str(timing_events_path))
+    )
+    checks.append(
+        _passed("timing.summary_present", str(timing_summary_path))
+        if summary is not None
+        else _incomplete("timing.summary_present", str(timing_summary_path))
+    )
+    checks.append(
+        _passed("timing.command_timeline_present", str(command_timeline_path))
+        if timeline is not None
+        else _incomplete("timing.command_timeline_present", str(command_timeline_path))
+    )
+
+    observed_stages: set[str] = set()
+    if events is not None and "stage" in events.columns:
+        observed_stages.update(events["stage"].dropna().astype(str).tolist())
+    if summary is not None and "stage" in summary.columns:
+        observed_stages.update(summary["stage"].dropna().astype(str).tolist())
+    if isinstance(timeline, dict):
+        for item in timeline.get("events", []):
+            if isinstance(item, dict) and item.get("stage"):
+                observed_stages.add(str(item["stage"]))
+
+    missing_stages = sorted(set(expected_stages) - observed_stages)
+    checks.append(
+        _passed("timing.expected_stages", f"stages={sorted(observed_stages)}")
+        if not missing_stages
+        else _incomplete("timing.expected_stages", f"missing stages={missing_stages}")
+    )
+
+    if events is not None and "elapsed_s" in events.columns:
+        elapsed = pd.to_numeric(events["elapsed_s"], errors="coerce")
+        nonnegative = bool(elapsed.notna().all() and elapsed.ge(0.0).all() and len(elapsed) > 0)
+        checks.append(
+            _passed("timing.nonnegative_elapsed", f"events={len(elapsed)}")
+            if nonnegative
+            else _incomplete("timing.nonnegative_elapsed", "elapsed_s has missing or negative values")
+        )
+    else:
+        checks.append(_incomplete("timing.nonnegative_elapsed", "timing events missing elapsed_s"))
+    return checks
+
+
 def _claim_boundary_terms(require_tier_e: bool) -> tuple[list[str], str]:
     """Return manuscript boundary terms for the current evidence tier."""
     if require_tier_e:
@@ -190,9 +261,18 @@ def audit_completion(
     expected_raw_rows: int = 240,
     expected_summary_rows: int = 48,
     expected_models: list[str] | None = None,
+    expected_seeds: list[int] | None = None,
+    expected_split_rows: int = 20,
+    expected_feature_schema_records: int = 20,
+    require_timing: bool = False,
+    timing_events_path: str | Path = "results/timing/timing_events.csv",
+    timing_summary_path: str | Path = "results/timing/timing_summary.csv",
+    command_timeline_path: str | Path = "results/timing/command_timeline.json",
+    expected_timing_stages: list[str] | None = None,
 ) -> dict[str, Any]:
     """Return a machine-readable audit of benchmark completion evidence."""
     expected_model_ids = expected_models or EXPECTED_MODELS
+    expected_seed_ids = expected_seeds or EXPECTED_SEEDS
     raw_path = Path(raw_results_path)
     summary_path = Path(summary_results_path)
     split_path = Path(split_manifest_path)
@@ -200,6 +280,9 @@ def audit_completion(
     feature_path = Path(feature_schema_path)
     hardware_path = Path(hardware_audit_path)
     profile_path = Path(profile_manifest_path)
+    timing_events_file = Path(timing_events_path)
+    timing_summary_file = Path(timing_summary_path)
+    command_timeline_file = Path(command_timeline_path)
     manuscript_file = Path(manuscript_path)
     bibliography_file = Path(bibliography_path)
 
@@ -246,7 +329,7 @@ def audit_completion(
         checks.append(_check_set("core4.datasets", _unique_values(raw, "dataset"), EXPECTED_DATASETS, str(raw_path)))
         checks.append(_check_set("core4.models", _unique_values(raw, "model_id"), expected_model_ids, str(raw_path)))
         checks.append(_check_set("core4.threats", _unique_values(raw, "threat_id"), EXPECTED_THREATS, str(raw_path)))
-        checks.append(_check_set("core4.seeds", _unique_int_values(raw, "seed"), EXPECTED_SEEDS, str(raw_path)))
+        checks.append(_check_set("core4.seeds", _unique_int_values(raw, "seed"), expected_seed_ids, str(raw_path)))
         missing_fields = [field for field in RESULT_FIELDS if field not in raw.columns]
         checks.append(
             _passed("schema.result_fields", "all standard result fields are present")
@@ -348,7 +431,7 @@ def audit_completion(
     if summary is not None:
         checks.append(_check_equal("core4.summary_rows", len(summary), expected_summary_rows, str(summary_path)))
     if splits is not None:
-        checks.append(_check_equal("core4.split_rows", len(splits), 20, str(split_path)))
+        checks.append(_check_equal("core4.split_rows", len(splits), expected_split_rows, str(split_path)))
         split_columns = {"dataset", "test_rows"}
         missing_split_columns = sorted(split_columns - set(splits.columns))
         repro_split_columns = {
@@ -404,7 +487,14 @@ def audit_completion(
     if dataset_manifest is not None:
         checks.append(_check_equal("core4.dataset_manifest_records", len(dataset_manifest), 15, str(dataset_path)))
     if feature_schema is not None:
-        checks.append(_check_equal("core4.feature_schema_records", len(feature_schema), 20, str(feature_path)))
+        checks.append(
+            _check_equal(
+                "core4.feature_schema_records",
+                len(feature_schema),
+                expected_feature_schema_records,
+                str(feature_path),
+            )
+        )
         if isinstance(feature_schema, list) and feature_schema:
             feature_columns = set().union(*(record.keys() for record in feature_schema if isinstance(record, dict)))
             missing_feature_schema_columns = sorted(
@@ -441,6 +531,15 @@ def audit_completion(
                 else _not_required("tier_e.physical_edge_available", evidence)
             )
     checks.extend(_profile_manifest_checks(profile_manifest, profile_path, hardware_ids, require_tier_e))
+    checks.extend(
+        _timing_checks(
+            require_timing,
+            timing_events_file,
+            timing_summary_file,
+            command_timeline_file,
+            expected_timing_stages or EXPECTED_TIMING_STAGES,
+        )
+    )
 
     if manuscript:
         boundary_terms, boundary_evidence = _claim_boundary_terms(require_tier_e)
@@ -465,6 +564,8 @@ def audit_completion(
         "expected_raw_rows": expected_raw_rows,
         "expected_summary_rows": expected_summary_rows,
         "expected_models": expected_model_ids,
+        "expected_seeds": expected_seed_ids,
+        "require_timing": require_timing,
         "complete": complete,
         "summary": {
             "passed": sum(check["status"] == "passed" for check in checks),

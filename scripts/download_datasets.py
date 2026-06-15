@@ -132,26 +132,19 @@ def main() -> None:
 
     registry = load_yaml(args.registry)
     known_ids = {item["dataset_id"] for item in registry.get("datasets", [])}
-    if not args.allow_third_party_mirrors:
-        requested_sources = []
-        for dataset_id in args.datasets:
-            for item in DEFAULT_FILES.get(dataset_id, []):
-                requested_sources.append(f"- {dataset_id}: {item['official_source']}")
-        source_text = "\n".join(dict.fromkeys(requested_sources))
-        print(
-            "RAISE-ICT is official-source-first. Third-party mirror downloads "
-            "require explicit opt-in with --allow-third-party-mirrors after "
-            "checking upstream dataset terms.\n"
-            f"Official source pages:\n{source_text}",
-            file=sys.stderr,
-        )
-        raise SystemExit(1)
-
     records = []
     for dataset_id in args.datasets:
         if dataset_id not in known_ids:
             raise ValueError(f"{dataset_id} is not listed in {args.registry}")
         for item in DEFAULT_FILES.get(dataset_id, []):
+            if not args.allow_third_party_mirrors:
+                print(
+                    "RAISE-ICT is official-source-first: inspect the upstream terms at "
+                    f"{item['official_source']} and rerun with --allow-third-party-mirrors "
+                    "only after accepting them.",
+                    file=sys.stderr,
+                )
+                raise SystemExit(1)
             path = Path(item["path"])
             download_file(item["url"], path, args.force)
             records.append(

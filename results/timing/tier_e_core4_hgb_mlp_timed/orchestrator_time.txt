@@ -1,0 +1,7 @@
+Timing mode: shell_wall_clock_fallback
+Command: python scripts/run_tier_e_core4_hgb_mlp_timed.py --hardware-config configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml --seeds 0 1 2 3 4 5 6 7 8 9
+Start UTC: 2026-06-12T10:10:26Z
+End UTC: 2026-06-12T11:44:22Z
+Elapsed wall-clock seconds: 5636
+Exit status: 0
+Note: GNU time was unavailable at /usr/bin/time, so max RSS and verbose resource counters were not recorded.

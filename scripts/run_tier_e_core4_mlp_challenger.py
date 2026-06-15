@@ -162,11 +162,7 @@ def _run_benchmark_command(run: dict[str, str], hardware_config: str) -> list[st
     )
 
 
-def _core4_precheck_command(
-    strict: bool = True,
-    manuscript: str = "anonymous_manuscript.tex",
-    bibliography: str = "anonymous_references.bib",
-) -> list[str]:
+def _core4_precheck_command(strict: bool = True) -> list[str]:
     return _command(
         "scripts/check_completion.py",
         "--out",
@@ -186,35 +182,19 @@ def _core4_precheck_command(
         "--profile-manifest",
         CORE4_PROFILE_PATH,
         "--manuscript",
-        manuscript,
+        "jkics/jkics.tex",
         "--bibliography",
-        bibliography,
+        "jkics/reference.bib",
         "--require-tier-e",
         *(["--strict"] if strict else []),
     )
 
 
-def _core4_rerun_command(
-    hardware_config: str,
-    manuscript: str = "anonymous_manuscript.tex",
-    bibliography: str = "anonymous_references.bib",
-) -> list[str]:
-    return _command(
-        "scripts/run_tier_e_core4.py",
-        "--hardware-config",
-        hardware_config,
-        "--manuscript",
-        manuscript,
-        "--bibliography",
-        bibliography,
-    )
+def _core4_rerun_command(hardware_config: str) -> list[str]:
+    return _command("scripts/run_tier_e_core4.py", "--hardware-config", hardware_config)
 
 
-def _combined_audit_command(
-    strict: bool = True,
-    manuscript: str = "anonymous_manuscript.tex",
-    bibliography: str = "anonymous_references.bib",
-) -> list[str]:
+def _combined_audit_command(strict: bool = True) -> list[str]:
     return _command(
         "scripts/check_completion.py",
         "--out",
@@ -234,9 +214,9 @@ def _combined_audit_command(
         "--profile-manifest",
         COMBINED_PROFILE_PATH,
         "--manuscript",
-        manuscript,
+        "jkics/jkics.tex",
         "--bibliography",
-        bibliography,
+        "jkics/reference.bib",
         "--expected-raw-rows",
         "320",
         "--expected-summary-rows",
@@ -303,18 +283,13 @@ def _merge_feature_command(runs: list[dict[str, str]], out: str) -> list[str]:
     return _command("scripts/merge_artifacts.py", *(run["features"] for run in runs), "--out", out)
 
 
-def build_commands(
-    hardware_config: str,
-    strict: bool = True,
-    manuscript: str = "anonymous_manuscript.tex",
-    bibliography: str = "anonymous_references.bib",
-) -> list[list[str]]:
+def build_commands(hardware_config: str, strict: bool = True) -> list[list[str]]:
     """Build the full single-command graph without executing it."""
     commands = [
         _command("scripts/validate_hardware_config.py", "--config", hardware_config),
         _command("scripts/audit_hardware.py", "--out", CHALLENGER_HARDWARE_AUDIT_PATH),
-        _core4_precheck_command(strict=True, manuscript=manuscript, bibliography=bibliography),
-        _core4_rerun_command(hardware_config, manuscript=manuscript, bibliography=bibliography),
+        _core4_precheck_command(strict=True),
+        _core4_rerun_command(hardware_config),
         *[_run_benchmark_command(run, hardware_config) for run in MLP_EDGE_RUNS],
         _merge_split_command(MLP_EDGE_RUNS, COMBINED_SPLIT_PATH),
         _merge_feature_command(MLP_EDGE_RUNS, COMBINED_FEATURE_PATH),
@@ -326,7 +301,7 @@ def build_commands(
         _aggregate_random_control_command(),
         _profile_manifest_command(hardware_config),
         _acceptance_report_command(hardware_config),
-        _combined_audit_command(strict=strict, manuscript=manuscript, bibliography=bibliography),
+        _combined_audit_command(strict=strict),
     ]
     return commands
 
@@ -342,11 +317,8 @@ def _ensure_tier_e_host(audit_path: str = CHALLENGER_HARDWARE_AUDIT_PATH) -> Non
         )
 
 
-def _core4_audit_passes(manuscript: str, bibliography: str) -> bool:
-    completed = subprocess.run(
-        _core4_precheck_command(strict=True, manuscript=manuscript, bibliography=bibliography),
-        check=False,
-    )
+def _core4_audit_passes() -> bool:
+    completed = subprocess.run(_core4_precheck_command(strict=True), check=False)
     return completed.returncode == 0
 
 
@@ -477,7 +449,7 @@ def write_acceptance_evidence_report(
         _count_line(RANDOM_CONTROL_RAW_PATH, 40),
         _count_line(RANDOM_CONTROL_SUMMARY_PATH, 8),
         f"- Primary constrained threat: `{PRIMARY_THREAT}`.",
-        "- Energy remains shared INA3221 `VDD_IN` module-power context, not per-model isolated energy.",
+        "- Energy remains shared INA3221 `VDD_IN` module-power context, not model-isolated energy.",
         "",
         "## Pareto Frontier Check",
         "",
@@ -539,7 +511,7 @@ def write_acceptance_evidence_report(
             "- Allowed: The single-command Tier-E challenger run evaluates one CPU-compatible neural IDS challenger under the same dataset, split, threat, seed, hardware, validity, and profiling fields as the Core4 references.",
             "- Allowed: The MLP challenger can be discussed only after the 320-row strict audit passes at `manifests/completion/benchmark_completion_audit_strict_tier_e_mlp_challenger.json`.",
             "- Allowed: Random-control rows remain pipeline-sanity evidence and should be contrasted with held-out score-search rows.",
-            "- Forbidden: Do not claim a general neural IDS leaderboard, SOTA result, packet-level attack realizability, per-model isolated energy, or hardware-independent efficiency.",
+            "- Forbidden: Do not claim a general neural IDS ranking, broad state-of-the-art result, packet-level attack realizability, model-isolated energy, or hardware-independent efficiency.",
             "",
             "## Manuscript Use",
             "",
@@ -553,22 +525,17 @@ def write_acceptance_evidence_report(
     return out_path
 
 
-def run_experiment(
-    hardware_config: str,
-    strict: bool = True,
-    manuscript: str = "anonymous_manuscript.tex",
-    bibliography: str = "anonymous_references.bib",
-) -> None:
+def run_experiment(hardware_config: str, strict: bool = True) -> None:
     _run(_command("scripts/validate_hardware_config.py", "--config", hardware_config))
     _run(_command("scripts/audit_hardware.py", "--out", CHALLENGER_HARDWARE_AUDIT_PATH))
     _ensure_tier_e_host()
 
-    if _core4_audit_passes(manuscript=manuscript, bibliography=bibliography):
+    if _core4_audit_passes():
         print(f"Reusing existing strict Tier-E Core4 package; precheck wrote {CORE4_PRECHECK_PATH}", flush=True)
     else:
         print("Existing Tier-E Core4 package did not pass strict precheck; rerunning Core4.", flush=True)
-        _run(_core4_rerun_command(hardware_config, manuscript=manuscript, bibliography=bibliography))
-        _run(_core4_precheck_command(strict=True, manuscript=manuscript, bibliography=bibliography))
+        _run(_core4_rerun_command(hardware_config))
+        _run(_core4_precheck_command(strict=True))
 
     for run in MLP_EDGE_RUNS:
         _run(_run_benchmark_command(run, hardware_config))
@@ -585,7 +552,7 @@ def run_experiment(
 
     print(write_combined_profile_manifest(hardware_config), flush=True)
     print(write_acceptance_evidence_report(), flush=True)
-    _run(_combined_audit_command(strict=strict, manuscript=manuscript, bibliography=bibliography))
+    _run(_combined_audit_command(strict=strict))
 
 
 def main() -> None:
@@ -595,8 +562,6 @@ def main() -> None:
     parser.add_argument("--no-strict", action="store_true")
     parser.add_argument("--write-profile-manifest-only", action="store_true")
     parser.add_argument("--write-acceptance-report-only", action="store_true")
-    parser.add_argument("--manuscript", default="anonymous_manuscript.tex")
-    parser.add_argument("--bibliography", default="anonymous_references.bib")
     args = parser.parse_args()
 
     if args.write_profile_manifest_only:
@@ -607,26 +572,16 @@ def main() -> None:
         return
     if args.dry_run:
         payload = {
-            "commands": build_commands(
-                args.hardware_config,
-                strict=not args.no_strict,
-                manuscript=args.manuscript,
-                bibliography=args.bibliography,
-            ),
+            "commands": build_commands(args.hardware_config, strict=not args.no_strict),
             "notes": [
-                "The run_tier_e_core4.py command is conditional: it runs only if the classical Core4 precheck fails.",
-                f"The challenger audit writes {CHALLENGER_AUDIT_PATH}; it does not overwrite manuscript-side audit files.",
+                "The run_tier_e_core4.py command is conditional: it runs only if the strict 240-row Core4 precheck fails.",
+                f"The challenger audit writes {CHALLENGER_AUDIT_PATH}; it does not overwrite jkics/audit_completion_current.json.",
             ],
         }
         print(json.dumps(payload, indent=2))
         return
 
-    run_experiment(
-        args.hardware_config,
-        strict=not args.no_strict,
-        manuscript=args.manuscript,
-        bibliography=args.bibliography,
-    )
+    run_experiment(args.hardware_config, strict=not args.no_strict)
 
 
 if __name__ == "__main__":

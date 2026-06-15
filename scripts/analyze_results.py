@@ -186,14 +186,14 @@ def write_bundle(
         *best_lines,
         "",
         "Constrained perturbations produce measurable robust-utility changes in this run. "
-        f"These findings are from {scope_note}, not final leaderboard claims.",
+        f"These findings are from {scope_note}, not field-wide ranking claims.",
         "",
         "## Claim Candidates",
         "",
         f"- Claim: The harness executes the {label} experiment grid on public intrusion-detection datasets.",
         f"  - Source evidence: `{raw_path}`, `{dataset_manifest_path}`, and `{split_manifest_path}`.",
         f"  - Allowed wording: \"The {label} run validates the RAISE-ICT execution path for {scope_note}.\"",
-        "  - Forbidden stronger wording: \"RAISE-ICT establishes a final leaderboard\" "
+        "  - Forbidden stronger wording: \"RAISE-ICT establishes a final field-wide ranking\" "
         "or \"model X is generally best.\"",
         "",
         f"- Claim: The constrained-attack rows in the {label} run report explicit validity counts "
@@ -207,6 +207,13 @@ def write_bundle(
         *[f"- {caveat}" for caveat in caveats],
     ]
     (out_dir / "analysis-report.md").write_text("\n".join(report) + "\n", encoding="utf-8")
+
+    min_seed_count = int(seed_counts.min())
+    max_seed_count = int(seed_counts.max())
+    if min_seed_count == max_seed_count:
+        seed_phrase = f"{min_seed_count} seeds"
+    else:
+        seed_phrase = f"{min_seed_count} to {max_seed_count} seeds"
 
     stats_md = [
         f"# RAISE-ICT {label} Stats Appendix",
@@ -222,7 +229,7 @@ def write_bundle(
         "## Summary Table Source",
         "",
         f"`{summary_path}` contains mean, standard deviation, and normal-approximation 95% "
-        "confidence intervals over five seeds.",
+        f"confidence intervals over {seed_phrase}.",
     ]
     (out_dir / "stats-appendix.md").write_text("\n".join(stats_md) + "\n", encoding="utf-8")
 
@@ -237,7 +244,7 @@ def write_bundle(
                 f"- File: `{path}`",
                 f"- Data source: `{summary_path}` and `{out_dir / 'paired_attack_drop.csv'}`.",
                 "- Purpose: show the constrained-attack comparison that can be discussed in the "
-                "manuscript without claiming a final leaderboard.",
+                "manuscript without claiming a final field-wide ranking.",
                 f"- Caveat: {scope_note}.",
                 "",
             ]
@@ -260,7 +267,7 @@ def main() -> None:
     raw = pd.read_csv(args.raw)
     summary = pd.read_csv(args.summary)
     caveats = args.caveat or [
-        "The run is an experiment-scope validation path, not a final leaderboard claim.",
+        "The run is an experiment-scope validation path, not a final field-wide ranking claim.",
         "Feature-space constrained attacks are not packet replay or simulator validated.",
         "Latency and energy claims are limited to the declared hardware tier and measurement metadata.",
         "Dataset-specific split limits are documented in the split manifest and should be "

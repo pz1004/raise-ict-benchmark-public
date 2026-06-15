@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier, HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 
@@ -11,7 +11,7 @@ from sklearn.neural_network import MLPClassifier
 def build_model(
     model_id: str,
     seed: int = 0,
-) -> DummyClassifier | LogisticRegression | RandomForestClassifier | ExtraTreesClassifier | MLPClassifier:
+) -> DummyClassifier | LogisticRegression | RandomForestClassifier | ExtraTreesClassifier | HistGradientBoostingClassifier | MLPClassifier:
     """Build one of the supported baseline estimators with stable defaults."""
     if model_id == "dummy":
         return DummyClassifier(strategy="most_frequent")
@@ -21,6 +21,15 @@ def build_model(
         return RandomForestClassifier(n_estimators=40, class_weight="balanced", random_state=seed, n_jobs=1)
     if model_id == "extra_trees":
         return ExtraTreesClassifier(n_estimators=40, class_weight="balanced", random_state=seed, n_jobs=1)
+    if model_id == "hist_gradient_boosting":
+        return HistGradientBoostingClassifier(
+            max_iter=100,
+            learning_rate=0.1,
+            max_leaf_nodes=31,
+            early_stopping=True,
+            class_weight="balanced",
+            random_state=seed,
+        )
     if model_id == "mlp_sklearn":
         return MLPClassifier(
             hidden_layer_sizes=(64,),

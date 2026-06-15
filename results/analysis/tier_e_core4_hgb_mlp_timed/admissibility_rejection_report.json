@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "all_rejected": true,
+  "cases": [
+    {
+      "case_id": "missing_split_manifest",
+      "rejected": true,
+      "incomplete_checks": [
+        "artifacts.split_manifest_present"
+      ]
+    },
+    {
+      "case_id": "wrong_row_count",
+      "rejected": true,
+      "incomplete_checks": [
+        "core4.raw_rows"
+      ]
+    },
+    {
+      "case_id": "missing_model_rows",
+      "rejected": true,
+      "incomplete_checks": [
+        "core4.raw_rows",
+        "core4.models"
+      ]
+    },
+    {
+      "case_id": "non_jetson_hardware",
+      "rejected": true,
+      "incomplete_checks": [
+        "profiling.physical_edge_results_required",
+        "tier_e.profile_manifest_hardware_match"
+      ]
+    },
+    {
+      "case_id": "a1_validity_below_threshold",
+      "rejected": true,
+      "incomplete_checks": [
+        "attacks.validity_threshold"
+      ]
+    },
+    {
+      "case_id": "missing_runtime_profile_metadata",
+      "rejected": true,
+      "incomplete_checks": [
+        "profiling.profile_metadata_present"
+      ]
+    }
+  ]
+}

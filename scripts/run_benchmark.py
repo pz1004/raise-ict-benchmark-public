@@ -4,9 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
+import time
 from collections.abc import Mapping
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +35,23 @@ from raise_ict.pipeline import (  # noqa: E402
 from raise_ict.preprocessing import FlowPreprocessor  # noqa: E402
 
 
+TIMING_FIELDS = [
+    "event_id",
+    "stage",
+    "dataset",
+    "split_id",
+    "seed",
+    "model_id",
+    "threat_id",
+    "start_iso",
+    "end_iso",
+    "elapsed_s",
+    "rows",
+    "output_path",
+    "detail",
+]
+
+
 def _schema_hash(columns: list[str]) -> str:
     return hashlib.sha256("\n".join(columns).encode("utf-8")).hexdigest()
 
@@ -39,6 +59,72 @@ def _schema_hash(columns: list[str]) -> str:
 def _json_hash(payload: object) -> str:
     text = json.dumps(payload, sort_keys=True, default=str)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _iso_from_timestamp(timestamp: float) -> str:
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
+
+
+def _record_timing(
+    events: list[dict[str, object]],
+    stage: str,
+    start_wall: float,
+    end_wall: float,
+    **metadata: object,
+) -> None:
+    events.append(
+        {
+            "event_id": len(events) + 1,
+            "stage": stage,
+            "dataset": metadata.get("dataset", ""),
+            "split_id": metadata.get("split_id", ""),
+            "seed": metadata.get("seed", ""),
+            "model_id": metadata.get("model_id", ""),
+            "threat_id": metadata.get("threat_id", ""),
+            "start_iso": _iso_from_timestamp(start_wall),
+            "end_iso": _iso_from_timestamp(end_wall),
+            "elapsed_s": max(0.0, end_wall - start_wall),
+            "rows": metadata.get("rows", ""),
+            "output_path": metadata.get("output_path", ""),
+            "detail": metadata.get("detail", ""),
+        }
+    )
+
+
+def _record_elapsed_timing(
+    events: list[dict[str, object]],
+    stage: str,
+    elapsed_s: float,
+    **metadata: object,
+) -> None:
+    end_wall = time.time()
+    start_wall = end_wall - max(0.0, elapsed_s)
+    _record_timing(events, stage, start_wall, end_wall, **metadata)
+
+
+def _write_timing_artifacts(events: list[dict[str, object]], timing_events_path: str) -> None:
+    if not timing_events_path:
+        return
+    events_path = Path(timing_events_path)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    with events_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=TIMING_FIELDS)
+        writer.writeheader()
+        writer.writerows(events)
+
+    summary_path = events_path.with_name(events_path.stem.replace("_events", "") + "_summary.csv")
+    frame = pd.DataFrame(events)
+    if frame.empty:
+        summary = pd.DataFrame(columns=["stage", "event_count", "elapsed_s_total", "elapsed_s_mean", "elapsed_s_max"])
+    else:
+        grouped = frame.groupby("stage", dropna=False)["elapsed_s"]
+        summary = grouped.agg(
+            event_count="count",
+            elapsed_s_total="sum",
+            elapsed_s_mean="mean",
+            elapsed_s_max="max",
+        ).reset_index()
+    summary.to_csv(summary_path, index=False)
 
 
 def _manifest_preprocessor(prep_cfg: Mapping[str, Any]) -> FlowPreprocessor:
@@ -194,6 +280,7 @@ def main() -> None:
     parser.add_argument("--feature-schema", default="manifests/feature_schemas/tier_p_feature_schema.json")
     parser.add_argument("--hardware-config", default="")
     parser.add_argument("--profile-manifest", default="")
+    parser.add_argument("--timing-events", default="")
     args = parser.parse_args()
 
     grid = load_yaml(args.config)
@@ -206,36 +293,108 @@ def main() -> None:
     schema_rows = []
     result_paths = []
     result_rows = []
+    timing_events: list[dict[str, object]] = []
 
     for dataset_cfg in _configured_datasets(grid):
         for seed in _configured_seeds(grid):
             dataset_with_seed = dict(dataset_cfg)
             dataset_with_seed["seed"] = seed
+            dataset_id = str(dataset_cfg.get("dataset_id", "unknown"))
+            split_id = str(dataset_cfg.get("split_id", grid.get("split_id", "realdata_split")))
+            start_wall = time.time()
             frame = load_dataset_from_config(dataset_with_seed)
+            end_wall = time.time()
+            _record_timing(
+                timing_events,
+                "dataset_load",
+                start_wall,
+                end_wall,
+                dataset=dataset_id,
+                split_id=split_id,
+                seed=seed,
+                rows=len(frame),
+            )
             base_config = {
                 "seed": seed,
                 "profile_repeats": grid.get("profile_repeats", 2),
                 "test_size": grid.get("test_size", 0.3),
-                "split_id": dataset_cfg.get("split_id", grid.get("split_id", "realdata_split")),
+                "split_id": split_id,
                 "dataset": dataset_with_seed,
                 "hardware": grid.get("hardware", {"hardware_id": "cpu_proxy"}),
                 "preprocessing": grid.get("preprocessing", {}),
                 "config_path": grid.get("config_path", args.config),
                 "scoring": grid.get("scoring", {}),
             }
+            start_wall = time.time()
             split_row, schema_row = _manifest_and_schema_records(base_config, frame)
+            end_wall = time.time()
+            _record_timing(
+                timing_events,
+                "preprocess_manifest",
+                start_wall,
+                end_wall,
+                dataset=dataset_id,
+                split_id=split_id,
+                seed=seed,
+                rows=len(frame),
+            )
             split_rows.append(split_row)
             schema_rows.append(schema_row)
             for model_cfg in _configured_models(grid):
                 model_config = {**base_config, "model": dict(model_cfg)}
-                context = train_context(model_config, frame)
+                model_id = str(model_cfg.get("model_id", "unknown_model"))
+
+                def timing_callback(stage: str, elapsed_s: float, model_id: str = model_id) -> None:
+                    _record_elapsed_timing(
+                        timing_events,
+                        stage,
+                        elapsed_s,
+                        dataset=dataset_id,
+                        split_id=split_id,
+                        seed=seed,
+                        model_id=model_id,
+                        rows=len(frame),
+                    )
+
+                context = train_context(model_config, frame, timing_callback=timing_callback)
                 for threat_cfg in _configured_threats(grid):
                     attack_config = dict(threat_cfg)
                     attack_config["seed"] = seed
                     config = {**model_config, "attack": attack_config}
+                    threat_id = str(attack_config.get("threat_id", "unknown_threat"))
+                    start_wall = time.time()
                     result = evaluate_threat(config, context)
+                    end_wall = time.time()
+                    _record_timing(
+                        timing_events,
+                        "threat_evaluation",
+                        start_wall,
+                        end_wall,
+                        dataset=dataset_id,
+                        split_id=split_id,
+                        seed=seed,
+                        model_id=model_id,
+                        threat_id=threat_id,
+                        rows=context.test_rows,
+                    )
                     result_rows.append(result.to_row())
-                    result_paths.append(str(write_result(result, out_dir)))
+                    start_wall = time.time()
+                    result_path = write_result(result, out_dir)
+                    end_wall = time.time()
+                    result_paths.append(str(result_path))
+                    _record_timing(
+                        timing_events,
+                        "result_writing",
+                        start_wall,
+                        end_wall,
+                        dataset=dataset_id,
+                        split_id=split_id,
+                        seed=seed,
+                        model_id=model_id,
+                        threat_id=threat_id,
+                        rows=1,
+                        output_path=str(result_path),
+                    )
 
     split_manifest = Path(args.split_manifest)
     split_manifest.parent.mkdir(parents=True, exist_ok=True)
@@ -245,6 +404,7 @@ def main() -> None:
     feature_schema.parent.mkdir(parents=True, exist_ok=True)
     feature_schema.write_text(json.dumps(schema_rows, indent=2), encoding="utf-8")
     _write_profile_manifest(args.profile_manifest, grid, out_dir, result_rows)
+    _write_timing_artifacts(timing_events, args.timing_events)
 
     print(
         json.dumps(
@@ -252,6 +412,7 @@ def main() -> None:
                 "results": result_paths,
                 "split_manifest": str(split_manifest),
                 "feature_schema": str(feature_schema),
+                "timing_events": args.timing_events,
             },
             indent=2,
         )

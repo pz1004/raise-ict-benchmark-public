@@ -30,12 +30,20 @@ def main() -> None:
     parser.add_argument("--require-full-scale-cse", action="store_true")
     parser.add_argument("--expected-raw-rows", type=int, default=240)
     parser.add_argument("--expected-summary-rows", type=int, default=48)
+    parser.add_argument("--expected-seeds", nargs="+", type=int, default=None)
+    parser.add_argument("--expected-split-rows", type=int, default=20)
+    parser.add_argument("--expected-feature-schema-records", type=int, default=20)
     parser.add_argument(
         "--expected-models",
         nargs="+",
         default=None,
         help="Expected model_id values. Defaults to the classical Core4 baselines.",
     )
+    parser.add_argument("--require-timing", action="store_true")
+    parser.add_argument("--timing-events", default="results/timing/timing_events.csv")
+    parser.add_argument("--timing-summary", default="results/timing/timing_summary.csv")
+    parser.add_argument("--command-timeline", default="results/timing/command_timeline.json")
+    parser.add_argument("--expected-timing-stages", nargs="+", default=None)
     parser.add_argument(
         "--strict",
         action="store_true",
@@ -58,6 +66,14 @@ def main() -> None:
         expected_raw_rows=args.expected_raw_rows,
         expected_summary_rows=args.expected_summary_rows,
         expected_models=args.expected_models,
+        expected_seeds=args.expected_seeds,
+        expected_split_rows=args.expected_split_rows,
+        expected_feature_schema_records=args.expected_feature_schema_records,
+        require_timing=args.require_timing,
+        timing_events_path=args.timing_events,
+        timing_summary_path=args.timing_summary,
+        command_timeline_path=args.command_timeline,
+        expected_timing_stages=args.expected_timing_stages,
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

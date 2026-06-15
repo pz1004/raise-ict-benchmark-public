@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "run_id": "tier_e_core4_hgb_mlp_timed",
+  "events": [
+    {
+      "index": 1,
+      "stage": "hardware_validation",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/validate_hardware_config.py --config configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml",
+      "start_iso": "2026-06-12T10:10:27.313992+00:00",
+      "end_iso": "2026-06-12T10:10:27.422467+00:00",
+      "elapsed_s": 0.1084749698638916,
+      "returncode": 0
+    },
+    {
+      "index": 2,
+      "stage": "hardware_audit",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/audit_hardware.py --out manifests/hardware/tier_e_core4_hgb_mlp_timed_hardware_audit.json",
+      "start_iso": "2026-06-12T10:10:27.432317+00:00",
+      "end_iso": "2026-06-12T10:10:27.542284+00:00",
+      "elapsed_s": 0.10996699333190918,
+      "returncode": 0
+    },
+    {
+      "index": 3,
+      "stage": "run_benchmark",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/run_benchmark.py --config results/configs/tier_e_core4_hgb_mlp_timed/expanded.yaml --out-dir results/raw/tier_e_core4_hgb_mlp_timed_expanded --split-manifest manifests/splits/tier_e_core4_hgb_mlp_timed_expanded_split_manifest.csv --feature-schema manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_expanded_feature_schema.json --hardware-config configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml --profile-manifest manifests/hardware/tier_e_core4_hgb_mlp_timed_expanded_profile_manifest.json --timing-events results/timing/tier_e_core4_hgb_mlp_timed/expanded_events.csv",
+      "start_iso": "2026-06-12T10:10:27.549988+00:00",
+      "end_iso": "2026-06-12T10:45:42.158814+00:00",
+      "elapsed_s": 2114.6088259220123,
+      "returncode": 0
+    },
+    {
+      "index": 4,
+      "stage": "run_benchmark",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/run_benchmark.py --config results/configs/tier_e_core4_hgb_mlp_timed/cicids2017.yaml --out-dir results/raw/tier_e_core4_hgb_mlp_timed_cicids2017 --split-manifest manifests/splits/tier_e_core4_hgb_mlp_timed_cicids2017_split_manifest.csv --feature-schema manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_cicids2017_feature_schema.json --hardware-config configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml --profile-manifest manifests/hardware/tier_e_core4_hgb_mlp_timed_cicids2017_profile_manifest.json --timing-events results/timing/tier_e_core4_hgb_mlp_timed/cicids2017_events.csv",
+      "start_iso": "2026-06-12T10:45:42.234626+00:00",
+      "end_iso": "2026-06-12T11:01:43.953686+00:00",
+      "elapsed_s": 961.7190606594086,
+      "returncode": 0
+    },
+    {
+      "index": 5,
+      "stage": "run_benchmark",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/run_benchmark.py --config results/configs/tier_e_core4_hgb_mlp_timed/cse_cic_ids2018.yaml --out-dir results/raw/tier_e_core4_hgb_mlp_timed_cse_cic_ids2018 --split-manifest manifests/splits/tier_e_core4_hgb_mlp_timed_cse_cic_ids2018_split_manifest.csv --feature-schema manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_cse_cic_ids2018_feature_schema.json --hardware-config configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml --profile-manifest manifests/hardware/tier_e_core4_hgb_mlp_timed_cse_cic_ids2018_profile_manifest.json --timing-events results/timing/tier_e_core4_hgb_mlp_timed/cse_cic_ids2018_events.csv",
+      "start_iso": "2026-06-12T11:01:44.038008+00:00",
+      "end_iso": "2026-06-12T11:14:47.388160+00:00",
+      "elapsed_s": 783.3501527309418,
+      "returncode": 0
+    },
+    {
+      "index": 6,
+      "stage": "artifact_merge",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/merge_artifacts.py manifests/splits/tier_e_core4_hgb_mlp_timed_expanded_split_manifest.csv manifests/splits/tier_e_core4_hgb_mlp_timed_cicids2017_split_manifest.csv manifests/splits/tier_e_core4_hgb_mlp_timed_cse_cic_ids2018_split_manifest.csv --out manifests/splits/tier_e_core4_hgb_mlp_timed_split_manifest.csv",
+      "start_iso": "2026-06-12T11:14:47.483304+00:00",
+      "end_iso": "2026-06-12T11:14:48.229458+00:00",
+      "elapsed_s": 0.7461545467376709,
+      "returncode": 0
+    },
+    {
+      "index": 7,
+      "stage": "artifact_merge",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/merge_artifacts.py manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_expanded_feature_schema.json manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_cicids2017_feature_schema.json manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_cse_cic_ids2018_feature_schema.json --out manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_feature_schema.json",
+      "start_iso": "2026-06-12T11:14:48.313188+00:00",
+      "end_iso": "2026-06-12T11:14:49.037297+00:00",
+      "elapsed_s": 0.7241098880767822,
+      "returncode": 0
+    },
+    {
+      "index": 8,
+      "stage": "aggregate_results",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/aggregate_results.py --results results/raw/tier_e_core4_hgb_mlp_timed_expanded results/raw/tier_e_core4_hgb_mlp_timed_cicids2017 results/raw/tier_e_core4_hgb_mlp_timed_cse_cic_ids2018 --out results/tables/tier_e_core4_hgb_mlp_timed --figures results/figures/tier_e_core4_hgb_mlp_timed",
+      "start_iso": "2026-06-12T11:14:49.117822+00:00",
+      "end_iso": "2026-06-12T11:14:54.516986+00:00",
+      "elapsed_s": 5.39916467666626,
+      "returncode": 0
+    },
+    {
+      "index": 9,
+      "stage": "analysis",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/analyze_results.py --raw results/tables/tier_e_core4_hgb_mlp_timed/table_raw_results.csv --summary results/tables/tier_e_core4_hgb_mlp_timed/table_main_results.csv --out results/analysis/tier_e_core4_hgb_mlp_timed --attack-threat a1_constrained_score_search --label Tier-E Timed Core4 HGB MLP --scope-note physical Jetson run with three classical baselines, HGB, and sklearn MLP over ten seeds --split-manifest manifests/splits/tier_e_core4_hgb_mlp_timed_split_manifest.csv --dataset-manifest manifests/dataset_hashes/tier_p_core4_download_manifest.json",
+      "start_iso": "2026-06-12T11:14:54.601262+00:00",
+      "end_iso": "2026-06-12T11:14:58.231037+00:00",
+      "elapsed_s": 3.6297755241394043,
+      "returncode": 0
+    },
+    {
+      "index": 10,
+      "stage": "run_benchmark",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/run_benchmark.py --config results/configs/tier_e_core4_hgb_mlp_timed/cicids2017_random_control.yaml --out-dir results/raw/tier_e_random_control_hgb_mlp_timed_cicids2017 --split-manifest manifests/splits/tier_e_random_control_hgb_mlp_timed_cicids2017_split_manifest.csv --feature-schema manifests/feature_schemas/tier_e_random_control_hgb_mlp_timed_cicids2017_feature_schema.json --hardware-config configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml --profile-manifest manifests/hardware/tier_e_random_control_hgb_mlp_timed_cicids2017_profile_manifest.json --timing-events results/timing/tier_e_core4_hgb_mlp_timed/cicids2017_random_control_events.csv",
+      "start_iso": "2026-06-12T11:14:58.313826+00:00",
+      "end_iso": "2026-06-12T11:31:03.063391+00:00",
+      "elapsed_s": 964.7495651245117,
+      "returncode": 0
+    },
+    {
+      "index": 11,
+      "stage": "run_benchmark",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/run_benchmark.py --config results/configs/tier_e_core4_hgb_mlp_timed/cse_cic_ids2018_random_control.yaml --out-dir results/raw/tier_e_random_control_hgb_mlp_timed_cse_cic_ids2018 --split-manifest manifests/splits/tier_e_random_control_hgb_mlp_timed_cse_cic_ids2018_split_manifest.csv --feature-schema manifests/feature_schemas/tier_e_random_control_hgb_mlp_timed_cse_cic_ids2018_feature_schema.json --hardware-config configs/hardware/jetson_orin_nx_super_measured_20260608T140153Z.yaml --profile-manifest manifests/hardware/tier_e_random_control_hgb_mlp_timed_cse_cic_ids2018_profile_manifest.json --timing-events results/timing/tier_e_core4_hgb_mlp_timed/cse_cic_ids2018_random_control_events.csv",
+      "start_iso": "2026-06-12T11:31:03.155006+00:00",
+      "end_iso": "2026-06-12T11:44:15.238057+00:00",
+      "elapsed_s": 792.0830514431,
+      "returncode": 0
+    },
+    {
+      "index": 12,
+      "stage": "artifact_merge",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/merge_artifacts.py manifests/splits/tier_e_random_control_hgb_mlp_timed_cicids2017_split_manifest.csv manifests/splits/tier_e_random_control_hgb_mlp_timed_cse_cic_ids2018_split_manifest.csv --out manifests/splits/tier_e_random_control_hgb_mlp_timed_split_manifest.csv",
+      "start_iso": "2026-06-12T11:44:15.339819+00:00",
+      "end_iso": "2026-06-12T11:44:16.062009+00:00",
+      "elapsed_s": 0.7221903800964355,
+      "returncode": 0
+    },
+    {
+      "index": 13,
+      "stage": "artifact_merge",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/merge_artifacts.py manifests/feature_schemas/tier_e_random_control_hgb_mlp_timed_cicids2017_feature_schema.json manifests/feature_schemas/tier_e_random_control_hgb_mlp_timed_cse_cic_ids2018_feature_schema.json --out manifests/feature_schemas/tier_e_random_control_hgb_mlp_timed_feature_schema.json",
+      "start_iso": "2026-06-12T11:44:16.165194+00:00",
+      "end_iso": "2026-06-12T11:44:16.893473+00:00",
+      "elapsed_s": 0.7282791137695312,
+      "returncode": 0
+    },
+    {
+      "index": 14,
+      "stage": "aggregate_results",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/aggregate_results.py --results results/raw/tier_e_random_control_hgb_mlp_timed_cicids2017 results/raw/tier_e_random_control_hgb_mlp_timed_cse_cic_ids2018 --out results/tables/tier_e_random_control_hgb_mlp_timed --figures results/figures/tier_e_random_control_hgb_mlp_timed",
+      "start_iso": "2026-06-12T11:44:16.997441+00:00",
+      "end_iso": "2026-06-12T11:44:19.304769+00:00",
+      "elapsed_s": 2.307328224182129,
+      "returncode": 0
+    },
+    {
+      "index": 15,
+      "stage": "profile_manifest",
+      "command": "write combined profile manifest",
+      "start_iso": "2026-06-12T11:44:19.408930+00:00",
+      "end_iso": "2026-06-12T11:44:19.412750+00:00",
+      "elapsed_s": 0.0038194656372070312,
+      "returncode": 0
+    },
+    {
+      "index": 16,
+      "stage": "acceptance_report",
+      "command": "write timed acceptance report",
+      "start_iso": "2026-06-12T11:44:19.523483+00:00",
+      "end_iso": "2026-06-12T11:44:19.550410+00:00",
+      "elapsed_s": 0.02692699432373047,
+      "returncode": 0
+    },
+    {
+      "index": 17,
+      "stage": "admissibility_rejection",
+      "command": "run constructed admissibility rejection suite",
+      "start_iso": "2026-06-12T11:44:19.665799+00:00",
+      "end_iso": "2026-06-12T11:44:20.033171+00:00",
+      "elapsed_s": 0.3673717975616455,
+      "returncode": 0
+    },
+    {
+      "index": 18,
+      "stage": "strict_audit",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/check_completion.py --out /tmp/raise_ict_tier_e_core4_hgb_mlp_timed_pre_timing_audit.json --raw-results results/tables/tier_e_core4_hgb_mlp_timed/table_raw_results.csv --summary-results results/tables/tier_e_core4_hgb_mlp_timed/table_main_results.csv --split-manifest manifests/splits/tier_e_core4_hgb_mlp_timed_split_manifest.csv --dataset-manifest manifests/dataset_hashes/tier_p_core4_download_manifest.json --feature-schema manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_feature_schema.json --hardware-audit manifests/hardware/tier_e_core4_hgb_mlp_timed_hardware_audit.json --profile-manifest manifests/hardware/tier_e_core4_hgb_mlp_timed_profile_manifest.json --manuscript jkics/jkics.tex --bibliography jkics/reference.bib --expected-raw-rows 800 --expected-summary-rows 80 --expected-split-rows 40 --expected-feature-schema-records 40 --expected-seeds 0 1 2 3 4 5 6 7 8 9 --expected-models extra_trees hist_gradient_boosting logistic_regression mlp_sklearn random_forest --require-tier-e --strict",
+      "start_iso": "2026-06-12T11:44:20.134642+00:00",
+      "end_iso": "2026-06-12T11:44:20.906166+00:00",
+      "elapsed_s": 0.7715237140655518,
+      "returncode": 0
+    },
+    {
+      "index": 19,
+      "stage": "timed_strict_audit",
+      "command": "/home/pandora/Workspaces/raise-ict-benchmark/.venv/bin/python scripts/check_completion.py --out manifests/completion/benchmark_completion_audit_strict_tier_e_core4_hgb_mlp_timed.json --raw-results results/tables/tier_e_core4_hgb_mlp_timed/table_raw_results.csv --summary-results results/tables/tier_e_core4_hgb_mlp_timed/table_main_results.csv --split-manifest manifests/splits/tier_e_core4_hgb_mlp_timed_split_manifest.csv --dataset-manifest manifests/dataset_hashes/tier_p_core4_download_manifest.json --feature-schema manifests/feature_schemas/tier_e_core4_hgb_mlp_timed_feature_schema.json --hardware-audit manifests/hardware/tier_e_core4_hgb_mlp_timed_hardware_audit.json --profile-manifest manifests/hardware/tier_e_core4_hgb_mlp_timed_profile_manifest.json --manuscript jkics/jkics.tex --bibliography jkics/reference.bib --expected-raw-rows 800 --expected-summary-rows 80 --expected-split-rows 40 --expected-feature-schema-records 40 --expected-seeds 0 1 2 3 4 5 6 7 8 9 --expected-models extra_trees hist_gradient_boosting logistic_regression mlp_sklearn random_forest --require-tier-e --require-timing --timing-events results/timing/tier_e_core4_hgb_mlp_timed/timing_events.csv --timing-summary results/timing/tier_e_core4_hgb_mlp_timed/timing_summary.csv --command-timeline results/timing/tier_e_core4_hgb_mlp_timed/command_timeline.json --strict",
+      "start_iso": "2026-06-12T11:44:21.116534+00:00",
+      "end_iso": "2026-06-12T11:44:21.926775+00:00",
+      "elapsed_s": 0.8102405071258545,
+      "returncode": 0
+    }
+  ]
+}

@@ -49,12 +49,7 @@ def _command(*parts: str) -> list[str]:
     return [sys.executable, *parts]
 
 
-def build_commands(
-    hardware_config: str,
-    strict: bool = True,
-    manuscript: str = "anonymous_manuscript.tex",
-    bibliography: str = "anonymous_references.bib",
-) -> list[list[str]]:
+def build_commands(hardware_config: str, strict: bool = True) -> list[list[str]]:
     """Build the Tier-E Core4 command graph without executing it."""
     raw_dirs = [run["raw"] for run in EDGE_RUNS]
     split_files = [run["split"] for run in EDGE_RUNS]
@@ -122,9 +117,9 @@ def build_commands(
                 "--profile-manifest",
                 "manifests/hardware/tier_e_profile_manifest.json",
                 "--manuscript",
-                manuscript,
+                "jkics/jkics.tex",
                 "--bibliography",
-                bibliography,
+                "jkics/reference.bib",
                 "--out",
                 "manifests/completion/benchmark_completion_audit_strict_tier_e.json",
                 *(["--strict"] if strict else []),
@@ -181,15 +176,8 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--no-strict", action="store_true")
     parser.add_argument("--write-profile-manifest-only", action="store_true")
-    parser.add_argument("--manuscript", default="anonymous_manuscript.tex")
-    parser.add_argument("--bibliography", default="anonymous_references.bib")
     args = parser.parse_args()
-    commands = build_commands(
-        args.hardware_config,
-        strict=not args.no_strict,
-        manuscript=args.manuscript,
-        bibliography=args.bibliography,
-    )
+    commands = build_commands(args.hardware_config, strict=not args.no_strict)
     if args.write_profile_manifest_only:
         print(write_combined_profile_manifest(args.hardware_config))
         return

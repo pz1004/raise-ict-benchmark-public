@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+import time
 from typing import Any
 
 import numpy as np
@@ -99,11 +100,19 @@ def train_and_evaluate_frame(config: Mapping[str, Any], frame: pd.DataFrame) -> 
     return evaluate_threat(config, context)
 
 
-def train_context(config: Mapping[str, Any], frame: pd.DataFrame) -> TrainedRunContext:
+def train_context(
+    config: Mapping[str, Any],
+    frame: pd.DataFrame,
+    timing_callback: Callable[[str, float], None] | None = None,
+) -> TrainedRunContext:
     """Train a model once and return reusable clean/profile evaluation state."""
     seed = int(config.get("seed", 0))
+    split_start = time.perf_counter()
     train, test = make_split(frame, seed=seed, test_size=float(config.get("test_size", 0.3)))
+    if timing_callback is not None:
+        timing_callback("split_construction", time.perf_counter() - split_start)
 
+    preprocess_start = time.perf_counter()
     prep_cfg = config.get("preprocessing", {})
     prep_kwargs = {
         "categorical_columns": prep_cfg.get("categorical_columns", ["protocol", "service"]),
@@ -116,11 +125,17 @@ def train_context(config: Mapping[str, Any], frame: pd.DataFrame) -> TrainedRunC
     x_test = preprocessor.transform(test)
     y_train = preprocessor.labels(train)
     y_test = preprocessor.labels(test)
+    if timing_callback is not None:
+        timing_callback("preprocessing", time.perf_counter() - preprocess_start)
 
     model_id = config.get("model", {}).get("model_id", "logistic_regression")
     model = build_model(model_id, seed=seed)
+    fit_start = time.perf_counter()
     model.fit(x_train, y_train)
+    if timing_callback is not None:
+        timing_callback("model_training", time.perf_counter() - fit_start)
 
+    clean_start = time.perf_counter()
     clean_pred = model.predict(x_test)
     clean = classification_summary(y_test, clean_pred)
     svc_cost = service_cost(y_test, clean_pred)
@@ -130,6 +145,8 @@ def train_context(config: Mapping[str, Any], frame: pd.DataFrame) -> TrainedRunC
         repeats=int(config.get("profile_repeats", 2)),
         hardware=config.get("hardware", {}),
     )
+    if timing_callback is not None:
+        timing_callback("clean_profile", time.perf_counter() - clean_start)
     return TrainedRunContext(
         dataset=config.get("dataset", {}).get("dataset_id", "synthetic_raise_ict"),
         split_id=config.get("split_id", "synthetic_seeded_split"),

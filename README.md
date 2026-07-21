@@ -1,6 +1,6 @@
 # RAISE-ICT Benchmark Public Bundle
 
-RAISE-ICT is a Python benchmark harness for intrusion-detection system (IDS) evaluation. An IDS is a model or rule system that flags malicious network activity. The main RAISE-ICT output is an auditable result-row contract: each reported score is tied to a CSV row plus machine-readable evidence for dataset source, split provenance, preprocessing state, model identity, threat setting, hardware profile, timing sidecars, and audit status.
+RAISE-ICT is a Python benchmark harness for intrusion-detection system (IDS) evaluation. An IDS is a model or rule system that flags malicious network activity. The main RAISE-ICT output is an auditable result-row contract: each reported score is tied to a CSV row plus machine-readable evidence for dataset source, split provenance, preprocessing state, model identity, threat setting, hardware profile, timing sidecars, and audit status. The bundle also includes a claim-conditioned pairwise checker that determines whether two result rows support an ordering under a declared comparison context.
 
 ## What this bundle provides
 
@@ -37,6 +37,26 @@ The bundle includes these manifests:
 - Timing sidecars in `results/timing/`.
 
 The strict completion audit is the checker that verifies required files, expected row counts, expected model IDs, evidence paths, timing sidecars, and manuscript-linked claim checks. The included strict timed Tier-E audit record is `manifests/completion/benchmark_completion_audit_strict_tier_e_core4_hgb_mlp_timed.json`; it reports `complete=true`, 39 passed required checks, 1 not-required check, and 0 incomplete checks for the 800-row timed evidence path.
+
+## Verify the pairwise admission rule
+
+The pairwise checker treats a proposed comparison, rather than a paper or isolated score, as the unit of admission. A declared context fixes the permitted metric, focal comparison field, non-focal invariants, and required evidence fields before the candidate outcomes are evaluated. The checker returns `defined`, `context_mismatch`, or `insufficient_evidence`; an explicitly authorized `not_applicable` state is recorded separately from unresolved evidence.
+
+The constructed test suite covers all three decisions, authorized `not_applicable`, unsupported metrics, row-to-request metric mismatches, and rejection of the withdrawn single-row claims interface:
+
+```bash
+python -m pytest -q tests/test_pairwise_admission.py
+```
+
+These tests establish the behavior of the software branches; they are not an external or independent validation of the comparison construct. To evaluate user-supplied rows, provide a context file, row file, and pair-request file:
+
+```bash
+python scripts/check_pairwise_admission.py \
+  --contexts /path/to/contexts.yaml \
+  --rows /path/to/rows.yaml \
+  --pairs /path/to/pairs.yaml \
+  --out-dir /path/to/pairwise-output
+```
 
 ## Setup
 

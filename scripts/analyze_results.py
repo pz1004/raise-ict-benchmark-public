@@ -42,12 +42,15 @@ def holm_adjust(p_values: list[float]) -> list[float]:
 
 def paired_attack_drop(raw: pd.DataFrame, attack_threat: str) -> pd.DataFrame:
     """Summarize paired clean-vs-attack robust-utility drops."""
-    clean = raw[raw["threat_id"] == "a0_clean"].set_index(["dataset", "model_id", "seed"])
+    pair_keys = ["dataset", "model_id", "seed"]
+    if "split_id" in raw.columns:
+        pair_keys.insert(1, "split_id")
+    clean = raw[raw["threat_id"] == "a0_clean"].set_index(pair_keys)
     attack = raw[raw["threat_id"] == attack_threat].copy()
     for column, default in {"valid_count": 0, "invalid_count": 0, "validity_rate": 1.0}.items():
         if column not in attack.columns:
             attack[column] = default
-    attack = attack.set_index(["dataset", "model_id", "seed"])
+    attack = attack.set_index(pair_keys)
     joined = clean[["robust_utility"]].join(
         attack[["robust_utility", "asr", "validity_rate", "valid_count", "invalid_count"]],
         how="inner",
@@ -58,7 +61,9 @@ def paired_attack_drop(raw: pd.DataFrame, attack_threat: str) -> pd.DataFrame:
 
     rows = []
     p_values = []
-    for (dataset, model_id), part in joined.groupby(["dataset", "model_id"]):
+    group_keys = [key for key in pair_keys if key != "seed"]
+    for keys, part in joined.groupby(group_keys):
+        key_values = keys if isinstance(keys, tuple) else (keys,)
         diff = part["robust_drop"]
         mean, std, low, high = mean_ci(diff)
         if len(diff) >= 2 and not np.allclose(diff, 0.0):
@@ -67,10 +72,11 @@ def paired_attack_drop(raw: pd.DataFrame, attack_threat: str) -> pd.DataFrame:
         else:
             p_value = 1.0
         p_values.append(p_value)
-        rows.append(
+        row = {
+            key: value for key, value in zip(group_keys, key_values, strict=True)
+        }
+        row.update(
             {
-                "dataset": dataset,
-                "model_id": model_id,
                 "n_pairs": int(len(diff)),
                 "mean_robust_drop": mean,
                 "std_robust_drop": std,
@@ -83,10 +89,11 @@ def paired_attack_drop(raw: pd.DataFrame, attack_threat: str) -> pd.DataFrame:
                 "wilcoxon_p": p_value,
             }
         )
+        rows.append(row)
     adjusted = holm_adjust(p_values)
     for row, p_adj in zip(rows, adjusted, strict=True):
         row["holm_p"] = p_adj
-    return pd.DataFrame(rows).sort_values(["dataset", "model_id"]).reset_index(drop=True)
+    return pd.DataFrame(rows).sort_values(group_keys).reset_index(drop=True)
 
 
 def render_figures(summary: pd.DataFrame, drops: pd.DataFrame, out_dir: Path, attack_threat: str) -> list[Path]:
@@ -185,7 +192,7 @@ def write_bundle(
         "",
         *best_lines,
         "",
-        "Constrained perturbations produce measurable robust-utility changes in this run. "
+        "Constrained perturbation rows are summarized with matched utility, ASR, and validity fields. "
         f"These findings are from {scope_note}, not field-wide ranking claims.",
         "",
         "## Claim Candidates",

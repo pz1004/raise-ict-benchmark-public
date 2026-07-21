@@ -236,7 +236,7 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         ax.text(
             0.04,
             0.94,
-            "RAISE-ICT row-admission workflow",
+            "RAISE-ICT pairwise-admission workflow",
             ha="left",
             va="center",
             fontsize=6.9,
@@ -254,8 +254,8 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         _draw_pipeline_box(
             ax,
             *claim,
-            "Claim context $c$",
-            "A0/A1/A4\nor CPU profile",
+            "Frozen context $c$",
+            "claim + metric\n+ focal field",
             "#FFFFFF",
             "#475569",
             title_size=5.7,
@@ -264,8 +264,8 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         _draw_pipeline_box(
             ax,
             *candidate,
-            "Candidate row $r$",
-            "score +\nartifacts",
+            "Candidate pair",
+            "$r_i,r_j$ +\nevidence",
             "#FFFFFF",
             "#475569",
             title_size=5.7,
@@ -274,19 +274,19 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         _draw_pipeline_box(
             ax,
             *gate,
-            "Admission gate",
-            "$A_c(r)=1$ iff\nresolve + match $c$",
+            "Pairwise gate",
+            "focal field differs;\ninvariants match;\nevidence resolves",
             "#F8FAFC",
             "#1F4E79",
             title_size=5.5,
-            detail_size=4.4,
+            detail_size=4.0,
             linewidth=0.95,
         )
         _draw_pipeline_box(
             ax,
             *admit,
-            "Admit",
-            "compare on\nchosen axis",
+            "Defined",
+            "order on\ndeclared metric",
             "#FFFFFF",
             "#475569",
             title_size=5.7,
@@ -295,8 +295,8 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         _draw_pipeline_box(
             ax,
             *reject,
-            "Not admitted",
-            "not this\ncomparison",
+            "Do not order",
+            "context mismatch or\ninsufficient evidence",
             "#FFFFFF",
             "#475569",
             title_size=5.7,
@@ -311,7 +311,7 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         ax.text(
             0.04,
             0.505,
-            "Required evidence fields",
+            "Evidence menu activated by $c$",
             ha="left",
             va="center",
             fontsize=5.8,
@@ -320,14 +320,14 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         )
 
         fields = [
-            "Dataset + sample scope",
-            "Split + preprocessing",
-            "Condition + control role",
-            "Model + seed",
+            "Outcome + population",
+            "Data + split",
+            "Preprocess + training",
             "Threat + validity",
-            "Profile + timing",
-            "Service-cost rule",
-            "Rows, citation, audit",
+            "Device + runtime",
+            "Timing + energy",
+            "Cost definition",
+            "Evidence locator",
         ]
         x_positions = [0.06, 0.535]
         y_positions = [0.39, 0.305, 0.22, 0.135]
@@ -340,10 +340,10 @@ def _render_pipeline_figure(path: str | Path) -> Path:
         ax.text(
             0.5,
             0.055,
-            "Substitution blocked: sample, split, threat, profile, cost.",
+            "A resolved conflict gives mismatch; unresolved active evidence is insufficient.",
             ha="center",
             va="center",
-            fontsize=5.4,
+            fontsize=4.75,
             fontstyle="italic",
             color="#475569",
         )
@@ -508,7 +508,7 @@ def _render_pareto_figure(results: pd.DataFrame, path: str | Path) -> Path:
             )
 
         fig.supxlabel(r"p95 latency ($\mu$s, log scale)", fontsize=6.5, x=0.62, y=0.245)
-        fig.supylabel("robust utility", fontsize=6.5, x=0.18)
+        fig.supylabel("Robust utility", fontsize=6.5, x=0.18)
         fig.tight_layout(rect=(0.09, 0.14, 1.0, 0.995), h_pad=0.5, w_pad=0.45)
         fig.savefig(out_path, bbox_inches="tight", pad_inches=0.02)
         plt.close(fig)

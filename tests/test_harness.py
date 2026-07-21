@@ -57,6 +57,10 @@ _TIMED_TIER_E_SPEC = importlib.util.spec_from_file_location(
 assert _TIMED_TIER_E_SPEC is not None and _TIMED_TIER_E_SPEC.loader is not None
 _TIMED_TIER_E_MODULE = importlib.util.module_from_spec(_TIMED_TIER_E_SPEC)
 _TIMED_TIER_E_SPEC.loader.exec_module(_TIMED_TIER_E_MODULE)
+_ANALYZE_SPEC = importlib.util.spec_from_file_location("analyze_results", ROOT / "scripts" / "analyze_results.py")
+assert _ANALYZE_SPEC is not None and _ANALYZE_SPEC.loader is not None
+_ANALYZE_MODULE = importlib.util.module_from_spec(_ANALYZE_SPEC)
+_ANALYZE_SPEC.loader.exec_module(_ANALYZE_MODULE)
 
 
 def test_synthetic_dataset_loader_has_expected_columns() -> None:
@@ -1150,6 +1154,85 @@ def test_tier_e_core4_hgb_mlp_timed_dry_run_lists_required_commands() -> None:
     assert any("--require-timing" in command for command in flattened)
     assert any("hist_gradient_boosting" in command and "--expected-models" in command for command in flattened)
     assert any("does not overwrite older evidence packages" in note for note in payload["notes"])
+
+
+def test_pairwise_checker_rejects_withdrawn_legacy_claims_mode(tmp_path: Path) -> None:
+    report = tmp_path / "legacy-report.md"
+    table = tmp_path / "legacy-table.csv"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/check_pairwise_admission.py",
+            "--contexts",
+            "unused-contexts.yaml",
+            "--rows",
+            "unused-rows.yaml",
+            "--pairs",
+            "unused-pairs.yaml",
+            "--out-dir",
+            str(tmp_path / "pairwise-out"),
+            "--claims",
+            "manifests/external_admissibility/external_ids_claims.yaml",
+            "--out",
+            str(report),
+            "--csv",
+            str(table),
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode != 0
+    assert "unrecognized arguments" in completed.stderr
+    assert not report.exists()
+    assert not table.exists()
+
+
+def test_paired_attack_drop_matches_split_id_when_random_controls_are_aggregated() -> None:
+    rows = []
+    for seed in [0, 1, 2]:
+        rows.append(
+            {
+                "dataset": "CSE-CIC-IDS2018",
+                "split_id": "holdout",
+                "model_id": "mlp_sklearn",
+                "seed": seed,
+                "threat_id": "a0_clean",
+                "robust_utility": 0.80,
+            }
+        )
+        rows.append(
+            {
+                "dataset": "CSE-CIC-IDS2018",
+                "split_id": "holdout",
+                "model_id": "mlp_sklearn",
+                "seed": seed,
+                "threat_id": "a1_constrained_score_search",
+                "robust_utility": 0.60,
+                "asr": 0.5,
+                "validity_rate": 1.0,
+                "valid_count": 100,
+                "invalid_count": 0,
+            }
+        )
+        rows.append(
+            {
+                "dataset": "CSE-CIC-IDS2018",
+                "split_id": "random_control",
+                "model_id": "mlp_sklearn",
+                "seed": seed,
+                "threat_id": "a0_clean",
+                "robust_utility": 0.95,
+            }
+        )
+
+    drops = _ANALYZE_MODULE.paired_attack_drop(pd.DataFrame(rows), "a1_constrained_score_search")
+
+    assert len(drops) == 1
+    assert drops.loc[0, "split_id"] == "holdout"
+    assert drops.loc[0, "n_pairs"] == 3
+    assert np.isclose(drops.loc[0, "mean_robust_drop"], 0.20)
 
 
 def test_tier_e_core4_combines_profile_manifests(tmp_path: Path) -> None:
